@@ -74,27 +74,20 @@ Foam::interfaceTrackingModels::subCellularInterfaceMotion::subCellularInterfaceM
         dimensionedScalar("", dimVelocity, 0.0)
       )
     ),
-    xf_
+    As_
     (
       volScalarField
       (
-        IOobject("xf", pair_.phase1().mesh()),
+        IOobject("As", pair_.phase1().mesh()),
         pair_.phase1().mesh(),
-        dimensionedScalar("", dimLength, 0.0)
+        dimensionedScalar("", dimArea/dimVolume, 0.0)
       )
     )
 {
-  if (pair_.phase1().name() == propellant_)
-  {
-    const volScalarField& alpha = pair_.phase1();
-    this->findInterface(alpha);
-  }
-  else
-  {
-    FatalErrorInFunction
-     << "Propellant name didn't match for selected pair."
-     << exit(FatalError);
-  }
+  const phaseModel& phase = pair_.phase1();
+  const volScalarField& alpha
+        = phase.db().lookupObject<volScalarField>("alpha." + propellant_);
+  this->findInterface(alpha);
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -121,7 +114,7 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
   const fvMesh& mesh = alpha.mesh();
   const labelList& Own = mesh.owner();
   const labelList& Nei = mesh.neighbour();
-  const surfaceScalarField& As = mesh.magSf();
+  const surfaceScalarField& Sf = mesh.magSf();
   const scalar dt = mesh.time().deltaTValue();
   const scalarField& V = mesh.V();
 
@@ -131,7 +124,8 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
     if (alpha0[Own[i]] == 0.5 && alpha0[Nei[i]] == 1)
     {
       interface_[Own[i]] = 1;
-      alpha[Own[i]] = alpha0[Own[i]] - rb_[Own[i]]*As[i]*dt/V[Own[i]];
+      As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
+      alpha[Own[i]] = alpha0[Own[i]] - rb_[Own[i]]*Sf[i]*dt/V[Own[i]];
       if (alpha[Own[i]] < 0)
       {
         scalar Vr = -alpha[Own[i]]*V[Own[i]];
@@ -150,7 +144,8 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
     else if ((alpha0[Own[i]] < 0.5) && (alpha0[Nei[i]] == 1))
     {
       interface_[Own[i]] = 1;
-      alpha[Own[i]] = alpha0[Own[i]] - rb_[Own[i]]*As[i]*dt/V[Own[i]];
+      As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
+      alpha[Own[i]] = alpha0[Own[i]] - rb_[Own[i]]*Sf[i]*dt/V[Own[i]];
       if (alpha[Own[i]] < 0)
       {
         scalar Vr = -alpha[Own[i]]*V[Own[i]];
@@ -169,7 +164,8 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
     else if ((alpha0[Own[i]] == 0) && (alpha0[Nei[i]] == 1))
     {
       interface_[Own[i]] = 1;
-      alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Nei[i]]*As[i]*dt/V[Nei[i]];
+      As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
+      alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Nei[i]]*Sf[i]*dt/V[Nei[i]];
       if (alpha[Nei[i]] < 0)
       {
         FatalErrorInFunction
@@ -182,7 +178,8 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
     else if ((alpha0[Own[i]] == 0) && (alpha0[Nei[i]] > 0.5))
     {
       interface_[Own[i]] = 1;
-      alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Nei[i]]*As[i]*dt/V[Nei[i]];
+      As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
+      alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Nei[i]]*Sf[i]*dt/V[Nei[i]];
       if (alpha[Nei[i]] < 0)
       {
         FatalErrorInFunction
@@ -240,5 +237,11 @@ Foam::tmp<Foam::volScalarField>
 Foam::interfaceTrackingModels::subCellularInterfaceMotion::rb() const
 {
     return Foam::tmp<Foam::volScalarField>(new volScalarField("trb", rb_));
+}
+
+Foam::tmp<Foam::volScalarField>
+Foam::interfaceTrackingModels::subCellularInterfaceMotion::As() const
+{
+    return Foam::tmp<Foam::volScalarField>(new volScalarField("tAs", As_));
 }
 // ************************************************************************* //

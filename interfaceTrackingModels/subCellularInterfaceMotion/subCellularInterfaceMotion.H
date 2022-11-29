@@ -68,7 +68,7 @@ public:
 
     volScalarField rb_;
 
-    volScalarField xf_;
+    volScalarField As_;
     // Constructors
 
         //- Construct from components
@@ -91,6 +91,9 @@ public:
 
     //- The burning rate
     virtual tmp<volScalarField> rb() const;
+
+    //- Interface Area
+    virtual tmp<volScalarField> As() const;
 };
 
 

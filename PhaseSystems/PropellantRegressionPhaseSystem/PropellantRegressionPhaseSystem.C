@@ -59,6 +59,8 @@ Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::PropellantRegressionPhas
 )
 :
     BasePhaseSystem(mesh),
+    molecularWeights_(this->subDict("molecularWeight")),
+    eqR_(this->template get<scalar>("equivalenceRatio")),
     saturationModel_
     (
         saturationModel::New(this->subDict("saturationModel"), mesh)
@@ -109,7 +111,7 @@ Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::dmdt
     const phasePairKey& key
 ) const
 {
-    return BasePhaseSystem::dmdt(key);
+    return BasePhaseSystem::dmdt(key) + rDmdt(key);
 }
 
 
@@ -143,68 +145,7 @@ Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::massTransfer() const
         new phaseSystem::massTransferTable()
     );
 
-    phaseSystem::massTransferTable& eqns = eqnsPtr();
-
-    forAll(this->phaseModels_, phasei)
-    {
-        const phaseModel& phase = this->phaseModels_[phasei];
-
-        const PtrList<volScalarField>& Yi = phase.Y();
-
-        forAll(Yi, i)
-        {
-            eqns.set
-            (
-                Yi[i].name(),
-                new fvScalarMatrix(Yi[i], dimMass/dimTime)
-            );
-        }
-    }
-
-    // Mass transfer across the interface
-    forAllConstIter
-    (
-        interfaceTrackingModelTable,
-        interfaceTrackingModels_,
-        interfaceTrackingModelIter
-    )
-    {
-        const phasePair& pair(this->phasePairs_[interfaceTrackingModelIter.key()]);
-
-        const phaseModel& phase = pair.phase1();
-        const phaseModel& otherPhase = pair.phase2();
-
-        // Note that the phase YiEqn does not contain a continuity error term,
-        // so these additions represent the entire mass transfer
-
-        const volScalarField dmdt(this->rDmdt(pair));
-        const volScalarField dmdt12(negPart(dmdt));
-        const volScalarField dmdt21(posPart(dmdt));
-
-        const PtrList<volScalarField>& Yi = phase.Y();
-
-        forAll(Yi, i)
-        {
-            const word name
-            (
-                IOobject::groupName(Yi[i].member(), phase.name())
-            );
-
-            const word otherName
-            (
-                IOobject::groupName(Yi[i].member(), otherPhase.name())
-            );
-
-            *eqns[name] +=
-                dmdt21*eqns[otherName]->psi()
-              + fvm::Sp(dmdt12, eqns[name]->psi());
-
-            *eqns[otherName] -=
-                dmdt12*eqns[name]->psi()
-              + fvm::Sp(dmdt21, eqns[otherName]->psi());
-        }
-
-    }
+    // (No Species Present)
 
     return eqnsPtr;
 }
@@ -213,23 +154,10 @@ template<class BasePhaseSystem>
 Foam::autoPtr<Foam::phaseSystem::heatTransferTable>
 Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::heatTransfer() const
 {
-  autoPtr<phaseSystem::heatTransferTable> eqnsPtr
-  (
-      new phaseSystem::heatTransferTable()
-  );
+  autoPtr<phaseSystem::heatTransferTable> eqnsPtr =
+          BasePhaseSystem::heatTransfer();
 
-  phaseSystem::heatTransferTable& eqns = eqnsPtr();
-
-  forAll(this->phaseModels_, phasei)
-  {
-      const phaseModel& phase = this->phaseModels_[phasei];
-
-      eqns.set
-      (
-          phase.name(),
-          new fvScalarMatrix(phase.thermo().he(), dimEnergy/dimTime)
-      );
-  }
+  // phaseSystem::heatTransferTable& eqns = eqnsPtr();
 
   forAllConstIter
   (
@@ -237,47 +165,7 @@ Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::heatTransfer() const
       interfaceTrackingModels_,
       interfaceTrackingModelIter
   )
-  {
-      // const volScalarField qg(interfaceTrackingModelIter()->Qg());1
-      // const volScalarField ql(interfaceTrackingModelIter()->Ql());
-
-      const phasePair& pair(this->phasePairs_[interfaceTrackingModelIter.key()]);
-
-      if (pair.ordered())
-      {
-          continue;
-      }
-
-      const phaseModel& phase1 = pair.phase1();
-      const phaseModel& phase2 = pair.phase2();
-
-      const dimensionedScalar one(dimless, 1.0);
-
-      // dmdt term is accounted in the continuity error term
-      // (*eqns[phase2.name()]).source() += qg;
-      // (*eqns[phase1.name()]).source() -= ql;
-
-      *eqns[phase2.name()] += fvm::laplacian
-      (
-          fvc::interpolate(phase2.alphaEff()),
-          phase2.thermo().he()
-      ) - fvm::laplacian
-      (
-        fvc::interpolate(phase2)*fvc::interpolate(phase2.alphaEff()),
-        phase2.thermo().he()
-      );
-
-      *eqns[phase1.name()] += fvm::laplacian
-      (
-          fvc::interpolate(phase1.alphaEff()),
-          phase1.thermo().he()
-      ) - fvm::laplacian
-      (
-        fvc::interpolate(phase1)*fvc::interpolate(phase1.alphaEff()),
-        phase1.thermo().he()
-      );
-
-  }
+  {}
 
   return eqnsPtr;
 }
@@ -307,17 +195,6 @@ void Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::correct()
 {
     BasePhaseSystem::correct();
 
-    forAllConstIter
-    (
-        interfaceTrackingModelTable,
-        interfaceTrackingModels_,
-        interfaceTrackingModelIter
-    )
-    {
-        *rDmdt_[interfaceTrackingModelIter.key()] =
-            dimensionedScalar(dimDensity/dimTime);
-    }
-
     //- Finds burning rate (rb = aP^n)
     forAllIter
     (
@@ -327,9 +204,11 @@ void Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::correct()
     )
     {
         interfaceTrackingModelIter()->correct();
+        *rDmdt_[interfaceTrackingModelIter.key()]
+                  = dimensionedScalar(dimDensity/dimTime);
     }
 
-    //- return burning Rate
+    //- return burning Rate, As and propellant density -> find mdot of propellant
     forAllConstIter
     (
         interfaceTrackingModelTable,
@@ -337,10 +216,11 @@ void Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::correct()
         interfaceTrackingModelIter
     )
     {
-      interfaceTrackingModelIter()->rb();
+        *rDmdt_[interfaceTrackingModelIter.key()]
+              = interfaceTrackingModelIter()->rb()
+                *interfaceTrackingModelIter()->As()
+                *interfaceTrackingModelIter()->rhop();
     }
-
-    //- find mass source terms
 
 }
 

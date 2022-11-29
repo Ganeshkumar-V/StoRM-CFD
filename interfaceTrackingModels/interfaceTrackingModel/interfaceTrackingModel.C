@@ -52,9 +52,25 @@ Foam::interfaceTrackingModel::interfaceTrackingModel
 :
     pair_(pair),
     propellant_(dict.get<word>("propellant"))
-{}
+{
+  if (pair_.phase1().name() == propellant_ || pair_.phase2().name() == propellant_)
+  {
+    FatalErrorInFunction
+     << "Propellant name should be different name other than the selected pair."
+     << exit(FatalError);
+  }
+}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+Foam::tmp<Foam::volScalarField>
+Foam::interfaceTrackingModel::rhop() const
+{
+    return
+    Foam::tmp<Foam::volScalarField>
+    (
+      new volScalarField("rhop", pair_.phase1().rho())
+    );
+}
 
 // * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
 

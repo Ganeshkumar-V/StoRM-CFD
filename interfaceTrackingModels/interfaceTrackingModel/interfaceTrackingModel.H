@@ -75,7 +75,7 @@ public:
 
     //- Propellant phase
     word propellant_;
-    
+
     // Declare runtime construction
 
         declareRunTimeSelectionTable
@@ -126,14 +126,14 @@ public:
 
     virtual void findInterface(const volScalarField& alpha) = 0;
 
-    //- The mass transfer rate
-    // virtual tmp<volScalarField> dmdt() const = 0;
-
-    //- Momentum and Heat Transfer rate
-
     //- The burning rate
     virtual tmp<volScalarField> rb() const = 0;
 
+    //- Interface Area
+    virtual tmp<volScalarField> As() const = 0;
+
+    //- Propellant Density
+    virtual tmp<volScalarField> rhop() const;
 };
 
 

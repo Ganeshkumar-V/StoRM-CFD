@@ -73,6 +73,12 @@ protected:
 
     // Protected data
 
+        // Molecular Weights of all the species
+        dictionary molecularWeights_;
+
+        // Equivalence Ratio
+        scalar eqR_;
+
         // Sub Models
 
             //- Mass transfer models
