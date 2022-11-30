@@ -165,7 +165,6 @@ Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::dmdts() const
         const volScalarField& rDmdt = *rDmdtIter();
 
         const scalar coeff = coeff_[rDmdtIter.key()];
-        // Add massTransfer Rate to the Gas Phase only
         this->addField(pair.phase1(), "dmdt", coeff*rDmdt, dmdts);
         this->addField(pair.phase2(), "dmdt", (1.0 - coeff)*rDmdt, dmdts);
     }
@@ -196,6 +195,26 @@ Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::heatTransfer() const
           BasePhaseSystem::heatTransfer();
 
   // phaseSystem::heatTransferTable& eqns = eqnsPtr();
+
+  forAllConstIter
+  (
+      interfaceTrackingModelTable,
+      interfaceTrackingModels_,
+      interfaceTrackingModelIter
+  )
+  {}
+
+  return eqnsPtr;
+}
+
+template<class BasePhaseSystem>
+Foam::autoPtr<Foam::phaseSystem::momentumTransferTable>
+Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::momentumTransfer() const
+{
+  autoPtr<phaseSystem::momentumTransferTable> eqnsPtr =
+                BasePhaseSystem::momentumTransfer();
+
+  phaseSystem::momentumTransferTable& eqns = eqnsPtr();
 
   forAllConstIter
   (

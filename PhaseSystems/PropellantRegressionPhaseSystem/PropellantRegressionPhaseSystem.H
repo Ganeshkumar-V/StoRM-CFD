@@ -131,7 +131,11 @@ public:
         //- Return the mass transfer matrices
         virtual autoPtr<phaseSystem::massTransferTable> massTransfer() const;
 
+        //- Return the heat transfer matrices
         virtual autoPtr<phaseSystem::heatTransferTable> heatTransfer() const;
+
+        //- Return the momentum transfer matrices
+        virtual autoPtr<phaseSystem::heatTransferTable> momentumTransfer() const;
 
         //- Regress Propellant Surface
         virtual void solve();
