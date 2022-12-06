@@ -117,97 +117,6 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::correct()
 }
 
 // find interface and stores interface in owner cell
-// void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
-// (
-//   volScalarField& alpha
-// )
-// {
-//   const volScalarField& alpha0 = alpha.oldTime();
-//
-//   const fvMesh& mesh = alpha.mesh();
-//   const labelList& Own = mesh.owner();
-//   const labelList& Nei = mesh.neighbour();
-//   const surfaceScalarField& Sf = mesh.magSf();
-//   const scalar dt = mesh.time().deltaTValue();
-//   const scalarField& V = mesh.V();
-//
-//   forAll(Own, i)
-//   {
-//     // case:1 Interface is present at the center of the owner cell
-//     if (alpha0[Own[i]] == 0.5 && alpha0[Nei[i]] == 1)
-//     {
-//       interface_[Own[i]] = 1;
-//       As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
-//       alpha[Own[i]] = alpha0[Own[i]] - rb_[Own[i]]*Sf[i]*dt/V[Own[i]];
-//       if (alpha[Own[i]] < 0)
-//       {
-//         scalar Vr = -alpha[Own[i]]*V[Own[i]];
-//         alpha[Nei[i]] = alpha0[Nei[i]] - Vr/V[Nei[i]];
-//         alpha[Own[i]] = 0;
-//         if (alpha[Nei[i]] < 0)
-//         {
-//           FatalErrorInFunction
-//             << "Regression is very fast!\n"
-//             << "Hint: Reduce time step."
-//             << exit(FatalError);
-//         }
-//       }
-//     }
-//     // case:2 Interface is present in between owner center and face
-//     else if ((alpha0[Own[i]] < 0.5) && (alpha0[Nei[i]] == 1))
-//     {
-//       interface_[Own[i]] = 1;
-//       As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
-//       alpha[Own[i]] = alpha0[Own[i]] - rb_[Own[i]]*Sf[i]*dt/V[Own[i]];
-//       if (alpha[Own[i]] < 0)
-//       {
-//         scalar Vr = -alpha[Own[i]]*V[Own[i]];
-//         alpha[Nei[i]] = alpha0[Nei[i]] - Vr/V[Nei[i]];
-//         alpha[Own[i]] = 0;
-//         if (alpha[Nei[i]] < 0)
-//         {
-//           FatalErrorInFunction
-//             << "Regression is very fast!\n"
-//             << "Hint: Reduce time step."
-//             << exit(FatalError);
-//         }
-//       }
-//     }
-//     // case:3 Interface is present exactly at the face
-//     else if ((alpha0[Own[i]] == 0) && (alpha0[Nei[i]] == 1))
-//     {
-//       interface_[Own[i]] = 1;
-//       As_[Own[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
-//       alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Own[i]]*Sf[i]*dt/V[Nei[i]];
-//       if (alpha[Nei[i]] < 0)
-//       {
-//         FatalErrorInFunction
-//           << "Regression is very fast!\n"
-//           << "Hint: Reduce time step."
-//           << exit(FatalError);
-//       }
-//     }
-//     // case:4 Interface is present in between face and neighbour center
-//     else if ((alpha0[Own[i]] == 0) && (alpha0[Nei[i]] > 0.5))
-//     {
-//       interface_[Own[i]] = 1;
-//       As_[Own[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
-//       alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Own[i]]*Sf[i]*dt/V[Nei[i]];
-//       if (alpha[Nei[i]] < 0)
-//       {
-//         FatalErrorInFunction
-//           << "Regression is very fast!\n"
-//           << "Hint: Reduce time step."
-//           << exit(FatalError);
-//       }
-//     }
-//     // case:5 Interface is not present (Ignore)
-//     else continue;
-//   }
-// }
-
-
-// finds interface and stores exact interface cell
 void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
 (
   volScalarField& alpha
@@ -281,9 +190,9 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
     // case:4 Interface is present in between face and neighbour center
     else if ((alpha0[Own[i]] == 0) && (alpha0[Nei[i]] > 0.5))
     {
-      interface_[Nei[i]] = 1;
-      As_[Nei[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
-      alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Nei[i]]*Sf[i]*dt/V[Nei[i]];
+      interface_[Own[i]] = 1;
+      As_[Own[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
+      alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Own[i]]*Sf[i]*dt/V[Nei[i]];
       if (alpha[Nei[i]] < 0)
       {
         FatalErrorInFunction
@@ -296,6 +205,97 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
     else continue;
   }
 }
+
+
+// finds interface and stores exact interface cell
+// void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
+// (
+//   volScalarField& alpha
+// )
+// {
+//   const volScalarField& alpha0 = alpha.oldTime();
+//
+//   const fvMesh& mesh = alpha.mesh();
+//   const labelList& Own = mesh.owner();
+//   const labelList& Nei = mesh.neighbour();
+//   const surfaceScalarField& Sf = mesh.magSf();
+//   const scalar dt = mesh.time().deltaTValue();
+//   const scalarField& V = mesh.V();
+//
+//   forAll(Own, i)
+//   {
+//     // case:1 Interface is present at the center of the owner cell
+//     if (alpha0[Own[i]] == 0.5 && alpha0[Nei[i]] == 1)
+//     {
+//       interface_[Own[i]] = 1;
+//       As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
+//       alpha[Own[i]] = alpha0[Own[i]] - rb_[Own[i]]*Sf[i]*dt/V[Own[i]];
+//       if (alpha[Own[i]] < 0)
+//       {
+//         scalar Vr = -alpha[Own[i]]*V[Own[i]];
+//         alpha[Nei[i]] = alpha0[Nei[i]] - Vr/V[Nei[i]];
+//         alpha[Own[i]] = 0;
+//         if (alpha[Nei[i]] < 0)
+//         {
+//           FatalErrorInFunction
+//             << "Regression is very fast!\n"
+//             << "Hint: Reduce time step."
+//             << exit(FatalError);
+//         }
+//       }
+//     }
+//     // case:2 Interface is present in between owner center and face
+//     else if ((alpha0[Own[i]] < 0.5) && (alpha0[Nei[i]] == 1))
+//     {
+//       interface_[Own[i]] = 1;
+//       As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
+//       alpha[Own[i]] = alpha0[Own[i]] - rb_[Own[i]]*Sf[i]*dt/V[Own[i]];
+//       if (alpha[Own[i]] < 0)
+//       {
+//         scalar Vr = -alpha[Own[i]]*V[Own[i]];
+//         alpha[Nei[i]] = alpha0[Nei[i]] - Vr/V[Nei[i]];
+//         alpha[Own[i]] = 0;
+//         if (alpha[Nei[i]] < 0)
+//         {
+//           FatalErrorInFunction
+//             << "Regression is very fast!\n"
+//             << "Hint: Reduce time step."
+//             << exit(FatalError);
+//         }
+//       }
+//     }
+//     // case:3 Interface is present exactly at the face
+//     else if ((alpha0[Own[i]] == 0) && (alpha0[Nei[i]] == 1))
+//     {
+//       interface_[Own[i]] = 1;
+//       As_[Own[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
+//       alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Own[i]]*Sf[i]*dt/V[Nei[i]];
+//       if (alpha[Nei[i]] < 0)
+//       {
+//         FatalErrorInFunction
+//           << "Regression is very fast!\n"
+//           << "Hint: Reduce time step."
+//           << exit(FatalError);
+//       }
+//     }
+//     // case:4 Interface is present in between face and neighbour center
+//     else if ((alpha0[Own[i]] == 0) && (alpha0[Nei[i]] > 0.5))
+//     {
+//       interface_[Nei[i]] = 1;
+//       As_[Nei[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
+//       alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Nei[i]]*Sf[i]*dt/V[Nei[i]];
+//       if (alpha[Nei[i]] < 0)
+//       {
+//         FatalErrorInFunction
+//           << "Regression is very fast!\n"
+//           << "Hint: Reduce time step."
+//           << exit(FatalError);
+//       }
+//     }
+//     // case:5 Interface is not present (Ignore)
+//     else continue;
+//   }
+// }
 
 void Foam::interfaceTrackingModels::subCellularInterfaceMotion::findInterface
 (

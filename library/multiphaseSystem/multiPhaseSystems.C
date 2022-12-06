@@ -28,7 +28,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "phaseSystem.H"
 #include "multiPhaseSystem.H"
-#include "MomentumTransferPhaseSystem.H"
+#include "MomentumEnergyTransferPhaseSystem.H"
 #include "PropellantRegressionPhaseSystem.H"
 #include "InterphaseHeatTransferPhaseSystem.H"
 
@@ -42,7 +42,7 @@ namespace Foam
         <
             InterphaseHeatTransferPhaseSystem
             <
-                MomentumTransferPhaseSystem<multiPhaseSystem>
+                MomentumEnergyTransferPhaseSystem<multiPhaseSystem>
             >
         >
         regressionMultiphaseSystem;

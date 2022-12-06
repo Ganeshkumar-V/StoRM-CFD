@@ -1,4 +1,4 @@
-#include "findPropellantCells.H"
+// #include "findPropellantCells.H"
 for (int Ecorr=0; Ecorr<nEnergyCorrectors; Ecorr++)
 {
     fluid.correctEnergyTransport();
@@ -36,12 +36,12 @@ for (int Ecorr=0; Ecorr<nEnergyCorrectors; Ecorr++)
         EEqn.relax();
         fvOptions.constrain(EEqn);
 
-        // set Propellant phase Values
-        EEqn.setValues
-        (
-          purePropellantCells,
-          phase.thermo().he(setTemp, setTemp, purePropellantCells)
-        );
+        // // set Propellant phase Values
+        // EEqn.setValues
+        // (
+        //   purePropellantCells,
+        //   phase.thermo().he(setTemp, setTemp, purePropellantCells)
+        // );
 
         EEqn.solve();
         fvOptions.correct(phase.thermoRef().he());
