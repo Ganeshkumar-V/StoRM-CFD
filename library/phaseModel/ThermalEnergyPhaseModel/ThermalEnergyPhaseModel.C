@@ -98,9 +98,6 @@ Foam::ThermalEnergyPhaseModel<BasePhaseModel>::heEqn()
     const tmp<volVectorField> tU(this->U());
     const volVectorField& U(tU());
 
-    const tmp<surfaceScalarField> talphaPhi(this->alphaPhi());
-    const surfaceScalarField& alphaPhi(talphaPhi());
-
     const tmp<surfaceScalarField> talphaRhoPhi(this->alphaRhoPhi());
     const surfaceScalarField& alphaRhoPhi(talphaRhoPhi());
 
