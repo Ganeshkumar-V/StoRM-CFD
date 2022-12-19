@@ -133,19 +133,19 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
-    stopWatch totalTime;
-    stopWatch runLoopTime;
-    stopWatch courantNoTime;
-    stopWatch pimpleLoopTime;
-    stopWatch alphaEqnTime;
-    stopWatch EEqnTime;
-    stopWatch PEqnTime;
-    stopWatch UEqnTime;
-    stopWatch infoTime;
+    StopWatch totalTime;
+    StopWatch runLoopTime;
+    StopWatch courantNoTime;
+    StopWatch pimpleLoopTime;
+    StopWatch alphaEqnTime;
+    StopWatch EEqnTime;
+    StopWatch PEqnTime;
+    StopWatch UEqnTime;
+    StopWatch infoTime;
     EEqntimeProfiler EEqnProfile;
 
     totalTime.start();
-    while (runTime.run())
+    while (!runTime.end())
     {
       runLoopTime.start();
 
@@ -281,6 +281,7 @@ int main(int argc, char *argv[])
     Info << "               ->         PEqn : " << PEqnTime.getTotalTime()/totalTimed*100.0 << " % ( " << PEqnTime.getTotalTime() << " s)"<< endl;
 
     EEqnProfile.displayTime();
+    // fluid.finalize();
     Info<< "End\n" << endl;
 
     return 0;

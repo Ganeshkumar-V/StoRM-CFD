@@ -64,7 +64,6 @@ Foam::sharpInterfaceHeatTransferModels::RanzMarshall::~RanzMarshall()
 Foam::tmp<Foam::volScalarField>
 Foam::sharpInterfaceHeatTransferModels::RanzMarshall::K(const scalar residualAlpha) const
 {
-  // Info << "Reynolds Number: " << pair_.Re() << endl;
     // volScalarField Nu(scalar(2) + 0.6*sqrt(pair_.Re())*cbrt(pair_.Pr()));
 
     return
@@ -74,6 +73,5 @@ Foam::sharpInterfaceHeatTransferModels::RanzMarshall::K(const scalar residualAlp
        *2.0
        /sqr(pair_.dispersed().d());
 }
-
 
 // ************************************************************************* //

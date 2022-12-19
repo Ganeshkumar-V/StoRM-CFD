@@ -175,6 +175,9 @@ public:
         //- Solve for the phase fractions
         virtual void solve();
 
+        //- Do finalizing Operations
+        virtual void finalize();
+
 };
 
 

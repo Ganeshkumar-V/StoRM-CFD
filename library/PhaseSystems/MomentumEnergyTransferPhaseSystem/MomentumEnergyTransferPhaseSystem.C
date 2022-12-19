@@ -1282,9 +1282,12 @@ Foam::MomentumEnergyTransferPhaseSystem<BasePhaseSystem>::heatTransfer() const
         const phasePair& pair(this->phasePairs_[KdIter.key()]);
         const volScalarField K(*KdIter());
 
-        const volVectorField Up(pair.phase1().U());
-        const volVectorField Ug(pair.phase2().U());
+        const tmp<volVectorField> tUp(pair.phase1().U());
+        const volVectorField& Up(tUp());
 
+        const tmp<volVectorField> tUg(pair.phase2().U());
+        const volVectorField& Ug(tUg());
+        
         // *eqns[pair.phase1().name()] -= K*(Up - Ug)&Up;
         if (totalEnergyGas)
         {

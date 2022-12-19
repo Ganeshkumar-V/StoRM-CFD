@@ -1,14 +1,14 @@
-#include "stopWatch.H"
+#include "StopWatch.H"
 
 class EEqntimeProfiler
 {
   public:
-    stopWatch heatTransfer;
-    stopWatch Construct;
-    stopWatch Relax;
-    stopWatch Solve;
-    stopWatch correctThermo;
-    stopWatch correct;
+    StopWatch heatTransfer;
+    StopWatch Construct;
+    StopWatch Relax;
+    StopWatch Solve;
+    StopWatch correctThermo;
+    StopWatch correct;
     void displayTime()
     {
       Info << "EEqn Time Profile: " << endl;

@@ -708,5 +708,7 @@ void Foam::multiPhaseSystem::solve()
     calcAlphas();
 }
 
+void Foam::multiPhaseSystem::finalize()
+{}
 
 // ************************************************************************* //
