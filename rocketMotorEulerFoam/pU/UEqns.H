@@ -1,4 +1,4 @@
-// Info<< "Constructing momentum equations" << endl;
+Info<< "Constructing momentum equations" << endl;
 
 PtrList<fvVectorMatrix> UEqns(phases.size());
 
@@ -33,14 +33,7 @@ PtrList<fvVectorMatrix> UEqns(phases.size());
         fvOptions.constrain(UEqns[phase.index()]);
         fvOptions.correct(U);
 
-        // set Propellant phase Values
-        if (propellantIndex != -1)
-        {
-          UEqns[phase.index()].setValues
-          (
-            purePropellantCells,
-            setVelocity
-          );
-        }
+        // set velocity Values
+        UEqns[phase.index()].setValues(purePropellantCells, setVelocity);
     }
 }

@@ -1,0 +1,459 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2018 OpenFOAM Foundation
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "PropellantInterfacePhaseSystem.H"
+#include "interfaceTrackingModel.H"
+#include "fvmSup.H"
+#include "phaseSystem.H"
+#include "fvmLaplacian.H"
+
+// * * * * * * * * * * * * Private Member Functions * * * * * * * * * * * * //
+
+template<class BasePhaseSystem>
+Foam::tmp<Foam::volScalarField>
+Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::rDmdt
+(
+    const phasePairKey& key
+) const
+{
+    if (!rDmdt_.found(key))
+    {
+        return phaseSystem::dmdt(key);
+    }
+
+    const scalar rDmdtSign(Pair<word>::compare(rDmdt_.find(key).key(), key));
+    return rDmdtSign**rDmdt_[key];
+}
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+template<class BasePhaseSystem>
+Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::PropellantInterfacePhaseSystem
+(
+    const fvMesh& mesh
+)
+:
+    BasePhaseSystem(mesh),
+    molecularWeights_(this->subDict("molecularWeight")),
+    eqR_(this->template get<scalar>("equivalenceRatio")),
+    Tad
+    (
+      volScalarField
+      (
+        IOobject("Tadiabatic", mesh), mesh,
+        dimensionedScalar("", dimTemperature, this->template get<scalar>("Tad"))
+      )
+    ),
+    zeta(this->template get<scalar>("Efficiency")),
+    rb_
+    (
+      volScalarField
+      (
+        IOobject
+        (
+          "rb",
+          mesh.time().timeName(),
+          mesh,
+          IOobject::NO_READ,
+          IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("", dimVelocity,0)
+      )
+    ),
+    R_("R", dimEnergy/dimMass/dimTemperature, 0),
+    rhoPropellant("rhoprop", dimDensity, this->template get<scalar>("propellantRho")),
+    rhoParticle("rhopar", dimDensity, this->template get<scalar>("particleRho")),
+    alphaRhoAl("alphaRhoAl", dimDensity, 0),
+    Ug_
+    (
+      volVectorField
+      (
+        IOobject
+        (
+          "Ug",
+          mesh.time().timeName(),
+          mesh,
+          IOobject::NO_READ,
+          IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedVector("", dimVelocity, vector(0, 0, 0))
+      )
+    ),
+    Up_
+    (
+      volVectorField
+      (
+        IOobject
+        (
+          "Up",
+          mesh.time().timeName(),
+          mesh,
+          IOobject::NO_READ,
+          IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedVector("", dimVelocity, vector(0, 0, 0))
+      )
+    ),
+    saturationModel_
+    (
+        saturationModel::New(this->subDict("saturationModel"), mesh)
+    )
+{
+    this->generatePairsAndSubModels
+    (
+        "interfaceTracking",
+        interfaceTrackingModels_
+    );
+
+    forAllConstIter
+    (
+        interfaceTrackingModelTable,
+        interfaceTrackingModels_,
+        interfaceTrackingModelIter
+    )
+    {
+        const phasePair& pair = this->phasePairs_[interfaceTrackingModelIter.key()];
+
+        // Initially assume no mass transfer
+        rDmdt_.set
+        (
+            pair,
+            new volScalarField
+            (
+                IOobject
+                (
+                    IOobject::groupName("rDmdt", pair.name()),
+                    this->mesh().time().timeName(),
+                    this->mesh(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                this->mesh(),
+                dimensionedScalar(dimDensity/dimTime)
+            )
+        );
+
+        nHat_.set
+        (
+          pair,
+          new volVectorField
+          (
+            IOobject
+            (
+              IOobject::groupName("nHat", pair.name()),
+              this->mesh().time().timeName(),
+              this->mesh(),
+              IOobject::READ_IF_PRESENT,
+              IOobject::AUTO_WRITE
+            ),
+            this->mesh(),
+            dimensionedVector(dimless)
+          )
+        );
+    }
+
+    // molecularWeights
+    MW_.Al = molecularWeights_.get<scalar>("Al");
+    MW_.Al2O3 = molecularWeights_.get<scalar>("Al2O3");
+    MW_.H2O = molecularWeights_.get<scalar>("H2O");
+    MW_.H2 = molecularWeights_.get<scalar>("H2");
+
+    R_.value() = 8314.5/MW_.H2;
+    alphaRhoAl.value() = rhoPropellant.value()*eqR_/(1 + eqR_);
+
+    // Coefficient of mass transfer
+    forAllConstIter
+    (
+      interfaceTrackingModelTable,
+      interfaceTrackingModels_,
+      interfaceTrackingModelIter
+    )
+    {
+        // number of moles of fuel
+        scalar xi = MW_.Al/(eqR_*MW_.H2O);
+        scalar coeff = 1.0;
+
+        if (eqR_ <= 1.0) // Lean or Stoichiometric Mixture
+        {
+            coeff = MW_.Al2O3/(2*MW_.Al*(1 + 1/eqR_));
+        }
+        else  // Rich mixture
+        {
+            coeff = 1.0 - MW_.H2*xi/(MW_.Al*(1 + 1/eqR_));
+        }
+
+        this->coeff_.set
+        (
+            interfaceTrackingModelIter.key(),
+            coeff
+        );
+    }
+
+    // Exit if efficiency is 0%
+    if (zeta == 0)
+    {
+        FatalErrorInFunction
+            << "Efficiency cannot be 0%\n"
+            << "Choose any number -> (0, 1.0]" << exit(FatalError);
+    }
+    if (zeta > 1.0)
+    {
+        FatalErrorInFunction
+            << "Efficiency cannot be more than 100%\n"
+            << "Choose any number -> (0, 1.0]" << exit(FatalError);
+    }
+}
+
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+template<class BasePhaseSystem>
+Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::
+~PropellantInterfacePhaseSystem()
+{}
+
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+template<class BasePhaseSystem>
+const Foam::saturationModel&
+Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::saturation() const
+{
+    return saturationModel_();
+}
+
+template<class BasePhaseSystem>
+Foam::tmp<Foam::volScalarField>
+Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::dmdt
+(
+    const phasePairKey& key
+) const
+{
+    // return BasePhaseSystem::dmdt(key) + this->rDmdt(key);
+    return BasePhaseSystem::dmdt(key);
+}
+
+
+template<class BasePhaseSystem>
+Foam::PtrList<Foam::volScalarField>
+Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::dmdts() const
+{
+    PtrList<volScalarField> dmdts(BasePhaseSystem::dmdts());
+
+    // Fill the mass transfer rates with zero
+    this->fillFields("dmdt", dimDensity/dimTime, dmdts);
+
+    forAllConstIter(rDmdtTable, rDmdt_, rDmdtIter)
+    {
+        const phasePair& pair = this->phasePairs_[rDmdtIter.key()];
+        const volScalarField& rDmdt = *rDmdtIter();
+
+        const scalar coeff = coeff_[rDmdtIter.key()];
+
+        this->addField(pair.phase1(), "dmdt", coeff*rDmdt, dmdts);
+        this->addField(pair.phase2(), "dmdt", (1.0 - coeff)*rDmdt, dmdts);
+
+        // Subtract for Propellant Phase
+        this->addField(this->phases()[2], "dmdt", -rDmdt, dmdts);
+    }
+    return dmdts;
+}
+
+
+template<class BasePhaseSystem>
+Foam::autoPtr<Foam::phaseSystem::massTransferTable>
+Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::massTransfer() const
+{
+    // Create a mass transfer matrix for each species of each phase
+    autoPtr<phaseSystem::massTransferTable> eqnsPtr
+    (
+        new phaseSystem::massTransferTable()
+    );
+    // (No Species Present)
+    return eqnsPtr;
+}
+
+template<class BasePhaseSystem>
+Foam::autoPtr<Foam::phaseSystem::heatTransferTable>
+Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::heatTransfer() const
+{
+  autoPtr<phaseSystem::heatTransferTable> eqnsPtr =
+          BasePhaseSystem::heatTransfer();
+
+  phaseSystem::heatTransferTable& eqns = eqnsPtr();
+
+  forAllConstIter(rDmdtTable, rDmdt_, rDmdtIter)
+  {
+    const phasePair& pair = this->phasePairs_[rDmdtIter.key()];
+    const volScalarField& rDmdt = *rDmdtIter();
+
+    const scalar coeff = coeff_[rDmdtIter.key()];
+
+    const phaseModel& phase1 = pair.phase1();
+    const phaseModel& phase2 = pair.phase2();
+
+    // Enthalpy source
+    const tmp<volScalarField> ths1(phase1.thermo().he(phase1.thermo().p(), Tad));
+    const volScalarField& hs1(ths1());
+
+    const tmp<volScalarField> ths2(phase2.thermo().he(phase2.thermo().p(), Tad));
+    const volScalarField& hs2(ths2());
+
+    // Equations
+    fvScalarMatrix& eqn1 = *eqns[phase1.name()];
+    fvScalarMatrix& eqn2 = *eqns[phase2.name()];
+
+    eqn1 += - fvm::Sp(coeff*rDmdt, eqn1.psi())
+            + coeff*rDmdt*hs1;
+    eqn2 += - fvm::Sp((1.0 - coeff)*rDmdt, eqn2.psi())
+            + (1.0 - coeff)*rDmdt*hs2;
+  }
+
+  return eqnsPtr;
+}
+
+template<class BasePhaseSystem>
+Foam::autoPtr<Foam::phaseSystem::momentumTransferTable>
+Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::momentumTransfer()
+{
+  autoPtr<phaseSystem::momentumTransferTable> eqnsPtr =
+                BasePhaseSystem::momentumTransfer();
+
+  phaseSystem::momentumTransferTable& eqns = eqnsPtr();
+
+  forAllConstIter(rDmdtTable, rDmdt_, rDmdtIter)
+  {
+    const phasePair& pair = this->phasePairs_[rDmdtIter.key()];
+    const volScalarField& rDmdt = *rDmdtIter();
+
+    const scalar coeff = coeff_[rDmdtIter.key()];
+
+    const phaseModel& phase1 = pair.phase1();
+    const phaseModel& phase2 = pair.phase2();
+
+    // Equations
+    fvVectorMatrix& eqn1 = *eqns[phase1.name()];
+    fvVectorMatrix& eqn2 = *eqns[phase2.name()];
+
+    // Momentum Source
+    eqn1 += - fvm::Sp(coeff*rDmdt, eqn1.psi())
+            + coeff*rDmdt*Up_;
+    eqn2 += - fvm::Sp((1.0 - coeff)*rDmdt, eqn2.psi())
+            + (1.0 - coeff)*rDmdt*Ug_;
+  }
+
+  return eqnsPtr;
+}
+
+template<class BasePhaseSystem>
+void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::correct()
+{
+    BasePhaseSystem::correct();
+
+    //- Finds burning rate (rb = aP^n)
+    forAllIter
+    (
+        interfaceTrackingModelTable,
+        interfaceTrackingModels_,
+        interfaceTrackingModelIter
+    )
+    {
+        interfaceTrackingModelIter()->correct();
+        *rDmdt_[interfaceTrackingModelIter.key()]
+                  = dimensionedScalar(dimDensity/dimTime);
+    }
+
+    //- return burning Rate, As and propellant density -> find mdot of propellant
+    forAllConstIter
+    (
+        interfaceTrackingModelTable,
+        interfaceTrackingModels_,
+        interfaceTrackingModelIter
+    )
+    {
+        *rDmdt_[interfaceTrackingModelIter.key()]
+              = interfaceTrackingModelIter()->rb()
+                *interfaceTrackingModelIter()->As()*rhoPropellant;
+        rb_ = pos(interfaceTrackingModelIter()->As())
+              *interfaceTrackingModelIter()->rb();
+        *nHat_[interfaceTrackingModelIter.key()]
+              = interfaceTrackingModelIter()->nHat();
+    }
+
+    // calculate velocity of the gas and particle source
+    calculateVelocity();
+}
+
+template<class BasePhaseSystem>
+void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::calculateVelocity()
+{
+    //- Calculate velocity of the gas and particles comes
+    //                into the combustion chamber
+
+    // density of gas phase entering,
+    const tmp<volScalarField> trhog(this->phases()[0].thermo().p()/(Tad*R_));
+    const volScalarField& rhog(trhog());
+
+    // volume fraction of particle phase
+    const tmp<volScalarField> talphap(1/(1 + (rhoParticle/rhog)*(zeta/(8 + 9*eqR_))));
+    const volScalarField& alphap(talphap());
+
+    // Velocity of gas and particle phase
+    forAllConstIter(interfaceTable, nHat_, nHatIter)
+    {
+      const volVectorField& nHat = *nHatIter();
+
+      Ug_ = -alphaRhoAl*rb_*nHat/(9.0*eqR_*(1 - alphap)*rhog);
+      Up_ = Ug_*zeta;
+
+      Ug_ += rb_*nHat;
+      Up_ += rb_*nHat;
+    }
+}
+
+template<class BasePhaseSystem>
+bool Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::read()
+{
+    if (BasePhaseSystem::read())
+    {
+        bool readOK = true;
+
+        // Models ...
+
+        return readOK;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+// ************************************************************************* //

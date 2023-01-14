@@ -24,17 +24,17 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::interfaceTrackingModels::subCellularInterfaceMotion
+    Foam::interfaceTrackingModels::burningRate
 
 Description
 
 SourceFiles
-    subCellularInterfaceMotion.C
+    burningRate.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef subCellularInterfaceMotion_H
-#define subCellularInterfaceMotion_H
+#ifndef burningRate_H
+#define burningRate_H
 
 #include "interfaceTrackingModel.H"
 
@@ -49,32 +49,47 @@ namespace interfaceTrackingModels
 {
 
 /*---------------------------------------------------------------------------*\
-                          Class subCellularInterfaceMotion Declaration
+                          Class burningRate Declaration
 \*---------------------------------------------------------------------------*/
 
-class subCellularInterfaceMotion
+class burningRate
 :
     public interfaceTrackingModel
 {
+private:
+
+  // Private Member Functions
+
+      //- Update interface
+      void updateInterface();
+
+      //- mesh
+      const fvMesh& mesh_;
+
 public:
 
     //- Runtime type information
-    TypeName("subCellularInterfaceMotion");
+    TypeName("burningRate");
 
     scalar n;
     dimensionedScalar a;
 
-    volScalarField interface_;
+    const phaseModel& propellantPhase_;
+
+    //- Interface area and Vector
+    volScalarField interfaceArea_;
+    volVectorField interfaceAreaVector_;
+
+    //- Interface Iso-value
+    scalar isoAlpha_;
 
     volScalarField rb_;
-
-    volScalarField As_;
 
     dimensionedScalar crb_;
     // Constructors
 
         //- Construct from components
-        subCellularInterfaceMotion
+        burningRate
         (
             const dictionary& dict,
             const phasePair& pair
@@ -82,7 +97,7 @@ public:
 
 
     //- Destructor
-    virtual ~subCellularInterfaceMotion();
+    virtual ~burningRate();
 
     // Member Functions
     virtual void correct();
@@ -96,6 +111,9 @@ public:
 
     //- Interface Area / Volume
     virtual tmp<volScalarField> As() const;
+
+    //- Interface Area / Volume
+    virtual tmp<volVectorField> nHat() const;
 };
 
 

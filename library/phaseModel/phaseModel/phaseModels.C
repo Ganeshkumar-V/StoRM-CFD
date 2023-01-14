@@ -39,6 +39,8 @@ License
 #include "PurePhaseModel.H"
 #include "InertPhaseModel.H"
 #include "MovingPhaseModel.H"
+#include "StaticPhaseModel.H"
+#include "IsothermalPhaseModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -90,6 +92,30 @@ namespace Foam
         pureThermalEnergyPhaseModel,
         phaseSystem,
         pureThermalEnergyPhaseModel
+    );
+
+    typedef
+        IsothermalPhaseModel
+        <
+            PurePhaseModel
+            <
+                InertPhaseModel
+                <
+                    StaticPhaseModel
+                    <
+                        ThermoPhaseModel<phaseModel, rhoThermo>
+                    >
+                >
+            >
+        >
+        pureIsothermalStaticPhaseModel;
+
+    addNamedToRunTimeSelectionTable
+    (
+        phaseModel,
+        pureIsothermalStaticPhaseModel,
+        phaseSystem,
+        pureIsothermalStaticPhaseModel
     );
 }
 

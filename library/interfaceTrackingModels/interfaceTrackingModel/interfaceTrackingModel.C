@@ -72,6 +72,11 @@ Foam::interfaceTrackingModel::rhop() const
     );
 }
 
+Foam::tmp<Foam::volVectorField>
+Foam::interfaceTrackingModel::nHat() const
+{
+  return nullptr;
+}
 // * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
 
 Foam::autoPtr<Foam::interfaceTrackingModel>

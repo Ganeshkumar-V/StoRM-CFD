@@ -8,3 +8,5 @@ cd "${0%/*}" || exit                                # Run from this directory
 wmake $targetType library 
 
 wmake $targetType rocketMotor
+
+wmake $targetType rocketMotorEulerFoam

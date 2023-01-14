@@ -200,6 +200,7 @@ void Foam::multiPhaseSystem::solveAlphas()
     labelHashSet fixedAlphaPhiCorrs;
     forAll(stationaryPhases(), stationaryPhasei)
     {
+      Info << "Stationary Phase is found" << endl;
         fixedAlphaPhiCorrs.insert(stationaryPhases()[stationaryPhasei].index());
     }
     MULES::limitSum(alphafs, alphaPhiCorrs, fixedAlphaPhiCorrs);
@@ -292,7 +293,8 @@ void Foam::multiPhaseSystem::solveAlphas()
             Su
         );
         phase.clip(SMALL, 1 - SMALL);
-        phase.alphaPhiRef() = alphaPhi;
+
+        if (phase.moving()) phase.alphaPhiRef() = alphaPhi;
     }
 
     // Report the phase fractions and the phase fraction sum
@@ -685,7 +687,7 @@ void Foam::multiPhaseSystem::solve()
         {
             phaseModel& phase = phases()[phasei];
             if (phase.stationary()) continue;
-
+            if (!phase.moving()) continue;
             phase.alphaPhiRef() = alphaPhiSums[phasei]/nAlphaSubCycles;
         }
     }
@@ -698,7 +700,7 @@ void Foam::multiPhaseSystem::solve()
     {
         phaseModel& phase = phases()[phasei];
         if (phase.stationary()) continue;
-
+        if (!phase.moving()) continue;
         phase.alphaRhoPhiRef() =
             fvc::interpolate(phase.rho())*phase.alphaPhi();
 

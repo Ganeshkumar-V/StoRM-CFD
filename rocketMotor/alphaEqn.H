@@ -38,6 +38,7 @@
   {
     phaseModel& phase = fluid.phases()[phasei];
     if(phase.stationary()) continue;
+    if (!phase.moving()) continue;
 
     volScalarField& alpha = phase;
 

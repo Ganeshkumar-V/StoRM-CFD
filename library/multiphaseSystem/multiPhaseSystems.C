@@ -28,8 +28,10 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "phaseSystem.H"
 #include "multiPhaseSystem.H"
+#include "multiphaseSystem.H"
 #include "MomentumEnergyTransferPhaseSystem.H"
 #include "PropellantRegressionPhaseSystem.H"
+#include "PropellantInterfacePhaseSystem.H"
 #include "InterphaseHeatTransferPhaseSystem.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -53,6 +55,24 @@ namespace Foam
         regressionMultiphaseSystem,
         dictionary,
         regressionMultiphaseSystem
+    );
+
+    typedef
+        PropellantInterfacePhaseSystem
+        <
+            InterphaseHeatTransferPhaseSystem
+            <
+                MomentumEnergyTransferPhaseSystem<multiPhaseSystem>
+            >
+        >
+        interfaceRegressionMultiphaseSystem;
+
+    addNamedToRunTimeSelectionTable
+    (
+        multiPhaseSystem,
+        interfaceRegressionMultiphaseSystem,
+        dictionary,
+        interfaceRegressionMultiphaseSystem
     );
 
 }

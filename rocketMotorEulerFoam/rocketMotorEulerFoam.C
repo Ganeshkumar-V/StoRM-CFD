@@ -42,63 +42,8 @@ Description
 #include "pimpleControl.H"
 #include "localEulerDdtScheme.H"
 #include "fvcSmooth.H"
-#include "simpleMatrix.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-void displayMatrix(fvScalarMatrix TEqn, volScalarField T)
-{
-  // Usage:- displayMatrix(YiEqn, Y[i]);
-
-  label NC = T.mesh().nCells(); //Number of cells
-  simpleMatrix<scalar> A(NC); //Coeff.matrix
-  // Initialization of matrix
-  for(label i=0; i<NC; i++)
-  {
-    A.source()[i] = 0.0;
-    for(label j=0; j<NC; j++)
-    {
-      A[i][j] = 0.0;
-    }
-  }
-  // Assigning diagonal coefficients
-  for(label i=0; i<NC; i++)
-  {
-    A[i][i] = TEqn.diag()[i];
-    A.source()[i] += TEqn.source()[i];
-  }
-  // Assigning off-diagonal coefficients
-  for(label faceI=0; faceI<TEqn.lduAddr().lowerAddr().size(); faceI++)
-  {
-    label l = TEqn.lduAddr().lowerAddr()[faceI];
-    label u = TEqn.lduAddr().upperAddr()[faceI];
-    A[l][u] = TEqn.upper()[faceI];
-    A[u][l] = TEqn.upper()[faceI];
-  }
-  // Assigning contribution from BC
-  forAll(T.boundaryField(), patchI)
-  {
-    const fvPatch &pp =
-    T.boundaryField()[patchI].patch();
-    forAll(pp, faceI)
-    {
-      label cellI = pp.faceCells()[faceI];
-      A[cellI][cellI]
-      += TEqn.internalCoeffs()[patchI][faceI];
-      A.source()[cellI]
-      += TEqn.boundaryCoeffs()[patchI][faceI];
-    }
-  }
-  // Info << "====Coefficients of Matrix " << T.name() << " ====" << endl;
-  for(label i=0; i<NC; i++)
-  {
-    for(label j=0; j<NC; j++)
-    {
-      Info<< A[i][j] << " ";
-    }
-    Info<< A.source()[i] << endl;
-  }
-  // Info<< "\n==> Solution: " << A.solve() << endl;
-}
 
 int main(int argc, char *argv[])
 {
@@ -132,7 +77,7 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
-    while (runTime.run())
+    while (!runTime.end())
     {
         #include "readTimeControls.H"
 
@@ -148,7 +93,7 @@ int main(int argc, char *argv[])
         else
         {
             #include "CourantNo.H"
-            #include "setDeltaT.H"
+            #include "setDeltaTFactor.H"
         }
 
         runTime++;
@@ -157,58 +102,39 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            fluid.solve();  // Just regress propellant surface
+            fluid.solve();
+            fluid.correct();
 
-            // #include "findPropellantCells.H"
+            #include "YEqns.H"
+
             label purePropellantSize = 0;
-            label pureTPropellantSize = 0;
-            if (propellantIndex != -1)
             {
               const volScalarField& propellant = phases[propellantIndex];
 
               forAll(propellant, i)
               {
-                if (propellant[i] == 1)
+                if (propellant[i] >= 0.9)
                 {
                   purePropellantSize++;
-                }
-                if (propellant[i] >= 0.99)
-                {
-                  pureTPropellantSize++;
                 }
               }
             }
             labelList purePropellantCells(purePropellantSize);
-            labelList pureTPropellantCells(pureTPropellantSize);
-            scalar Tad = fluid.get<scalar>("Tad");
-            scalarField setTemp(pureTPropellantSize, 300);
-            scalarField setAlpha(purePropellantSize, SMALL);
+            scalarField setTemp(purePropellantSize, 3000);
             vectorField setVelocity(purePropellantSize, vector(0, 0, 0));
-            if (propellantIndex != -1)
             {
               const volScalarField& propellant = phases[propellantIndex];
 
               label j = 0;
-              label k = 0;
               forAll(propellant, i)
               {
-                if (propellant[i] == 1)
+                if (propellant[i] >= 0.9)
                 {
                   purePropellantCells[j] = i;
                   j++;
                 }
-                if (propellant[i] >= 0.99)
-                {
-                  pureTPropellantCells[k] = i;
-                  k++;
-                }
               }
             }
-
-            #include "alphaEqn.H"
-            fluid.correct();
-
-            #include "YEqns.H"
 
             if (faceMomentum)
             {
@@ -231,16 +157,6 @@ int main(int argc, char *argv[])
             }
         }
 
-        forAll(phases, phasei)
-        {
-            phaseModel& phase = phases[phasei];
-            if (phase.index() == propellantIndex) continue;
-            Info<< phase.name() << " min/max T "
-                << min(phase.thermo().T()).value()
-                << " - "
-                << max(phase.thermo().T()).value()
-                << endl;
-        }
         runTime.write();
 
         runTime.printExecutionTime(Info);

@@ -1,10 +1,13 @@
-// Info<< "Constructing momentum equations" << endl;
+Info<< "Constructing face momentum equations" << endl;
 
 PtrList<fvVectorMatrix> UEqns(phases.size());
 
 {
+    fluid.momentumTransfer(); // !!! Update coefficients shouldn't be necessary
+                              //     This should be done on demand
+
     autoPtr<phaseSystem::momentumTransferTable>
-        momentumTransferPtr(fluid.momentumTransfer());
+        momentumTransferPtr(fluid.momentumTransferf());
 
     phaseSystem::momentumTransferTable&
         momentumTransfer(momentumTransferPtr());
@@ -12,7 +15,7 @@ PtrList<fvVectorMatrix> UEqns(phases.size());
     forAll(fluid.movingPhases(), movingPhasei)
     {
         phaseModel& phase = fluid.movingPhases()[movingPhasei];
-        if (!phase.moving()) continue;
+
         const volScalarField& alpha = phase;
         const volScalarField& rho = phase.rho();
         volVectorField& U = phase.URef();
@@ -22,7 +25,7 @@ PtrList<fvVectorMatrix> UEqns(phases.size());
             phase.index(),
             new fvVectorMatrix
             (
-                phase.UEqn()
+                phase.UfEqn()
              ==
                *momentumTransfer[phase.name()]
               + fvOptions(alpha, rho, U)
@@ -31,16 +34,7 @@ PtrList<fvVectorMatrix> UEqns(phases.size());
 
         UEqns[phase.index()].relax();
         fvOptions.constrain(UEqns[phase.index()]);
+        U.correctBoundaryConditions();
         fvOptions.correct(U);
-
-        // set Propellant phase Values
-        if (propellantIndex != -1)
-        {
-          UEqns[phase.index()].setValues
-          (
-            purePropellantCells,
-            setVelocity
-          );
-        }
     }
 }

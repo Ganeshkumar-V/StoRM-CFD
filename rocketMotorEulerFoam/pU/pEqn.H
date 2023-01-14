@@ -14,7 +14,7 @@ PtrList<volScalarField> rAUs(phases.size());
 forAll(fluid.movingPhases(), movingPhasei)
 {
     phaseModel& phase = fluid.movingPhases()[movingPhasei];
-    if (!phase.moving()) continue;
+    if(!phase.moving()) continue;
     const volScalarField& alpha = phase;
 
     rAUs.set
@@ -64,7 +64,7 @@ while (pimple.correct())
     forAll(fluid.movingPhases(), movingPhasei)
     {
         phaseModel& phase = fluid.movingPhases()[movingPhasei];
-        if (!phase.moving()) continue;
+        if(!phase.moving()) continue;
         MRF.correctBoundaryFlux(phase.U(), phase.phiRef());
     }
 
@@ -186,7 +186,7 @@ while (pimple.correct())
         dimensionedScalar("phiHbyA", dimArea*dimVelocity, 0)
     );
 
-    forAll(fluid.movingPhases(), phasei)
+    forAll(phases, phasei)
     {
         if(!phases[phasei].moving()) continue;
         phiHbyA += alphafs[phasei]*phiHbyAs[phasei];
@@ -391,10 +391,12 @@ while (pimple.correct())
             forAll(fluid.movingPhases(), movingPhasei)
             {
                 phaseModel& phase = fluid.movingPhases()[movingPhasei];
-                if (!phase.moving()) continue;
-                phase.phiRef() =
-                    phiHbyAs[phase.index()]
-                  + alpharAUfs[phase.index()]*mSfGradp;
+                if(phase.moving())
+                {
+                    phase.phiRef() =
+                        phiHbyAs[phase.index()]
+                        + alpharAUfs[phase.index()]*mSfGradp;
+                }
 
                 // Set the phase dilatation rates
                 if (pEqnComps.set(phase.index()))
@@ -411,7 +413,7 @@ while (pimple.correct())
             forAll(fluid.movingPhases(), movingPhasei)
             {
                 phaseModel& phase = fluid.movingPhases()[movingPhasei];
-                if (!phase.moving()) continue;
+                if(!phase.moving()) continue;
 
                 phase.URef() =
                     HbyAs[phase.index()]
@@ -430,35 +432,16 @@ while (pimple.correct())
             forAll(fluid.movingPhases(), movingPhasei)
             {
                 phaseModel& phase = fluid.movingPhases()[movingPhasei];
-                if (!phase.moving()) continue;
+                if(!phase.moving()) continue;
 
                 phase.URef().correctBoundaryConditions();
                 fvOptions.correct(phase.URef());
-
-                // Fix velocities for Propellant Cells
-                if (propellantIndex != -1)
-                {
-                  const volScalarField& propellant = phases[propellantIndex];
-
-                  // Fix velocities
-                  forAll(propellant, i)
-                  {
-                    if (propellant[i] == 1.0)
-                    {
-                      phase.URef()[i] = vector(0, 0, 0);
-                    }
-                  }
-                //
-                //   // Correct phi
-                //   phase.phiRef() = fvc::flux(phase.U());
-                }
-
             }
         }
     }
 
     // Update and limit the static pressure
-    // p = max(p_rgh + rho*gh, pMin);
+    p = max(p_rgh + rho*gh, pMin);
 
     // Limit p_rgh
     p_rgh = p - rho*gh;
