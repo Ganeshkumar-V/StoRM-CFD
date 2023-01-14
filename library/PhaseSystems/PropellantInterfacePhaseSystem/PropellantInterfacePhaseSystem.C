@@ -401,8 +401,7 @@ void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::correct()
         *rDmdt_[interfaceTrackingModelIter.key()]
               = interfaceTrackingModelIter()->rb()
                 *interfaceTrackingModelIter()->As()*rhoPropellant;
-        rb_ = pos(interfaceTrackingModelIter()->As())
-              *interfaceTrackingModelIter()->rb();
+        rb_ = interfaceTrackingModelIter()->rb();
         *nHat_[interfaceTrackingModelIter.key()]
               = interfaceTrackingModelIter()->nHat();
     }
