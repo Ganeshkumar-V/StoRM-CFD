@@ -105,8 +105,6 @@ int main(int argc, char *argv[])
             fluid.solve();
             fluid.correct();
 
-            #include "YEqns.H"
-
             label purePropellantSize = 0;
             {
               const volScalarField& propellant = phases[propellantIndex];
@@ -120,7 +118,11 @@ int main(int argc, char *argv[])
               }
             }
             labelList purePropellantCells(purePropellantSize);
-            scalarField setTemp(purePropellantSize, 2000);
+            scalarField setTemp
+            (
+              purePropellantSize,
+              fluid.getOrDefault<scalar>("Tset", 2000)
+            );
             vectorField setVelocity(purePropellantSize, vector(0, 0, 0));
             {
               const volScalarField& propellant = phases[propellantIndex];
@@ -135,6 +137,8 @@ int main(int argc, char *argv[])
                 }
               }
             }
+
+            #include "YEqns.H"
 
             if (faceMomentum)
             {

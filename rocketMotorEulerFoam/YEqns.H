@@ -17,7 +17,12 @@
         {
             fvScalarMatrix YiEqn
             (
-                phase.YiEqn(Y[i])
+              fvm::ddt(alpha, rho, Y[i])
+              + fvm::div
+              (
+                phase.alphaRhoPhi(), Y[i],
+                "div(" + phase.alphaRhoPhi()().name() + ",Yi)"
+              )
              ==
                *massTransfer[Y[i].name()]
               + fvOptions(alpha, rho, Y[i])
@@ -25,6 +30,9 @@
 
             YiEqn.relax();
             YiEqn.solve(mesh.solver("Yi"));
+
+            // Clip Yi's
+            Y[i].clip(SMALL, 1 - SMALL);
         }
     }
 }

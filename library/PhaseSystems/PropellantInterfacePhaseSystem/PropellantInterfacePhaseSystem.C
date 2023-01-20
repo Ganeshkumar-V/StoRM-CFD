@@ -296,7 +296,59 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::massTransfer() const
     (
         new phaseSystem::massTransferTable()
     );
-    // (No Species Present)
+
+    phaseSystem::massTransferTable& eqns = eqnsPtr();
+
+    forAll(this->phaseModels_, phasei)
+    {
+        const phaseModel& phase = this->phaseModels_[phasei];
+
+        const PtrList<volScalarField>& Yi = phase.Y();
+
+        forAll(Yi, i)
+        {
+            eqns.set
+            (
+                Yi[i].name(),
+                new fvScalarMatrix(Yi[i], dimMass/dimTime)
+            );
+        }
+    }
+
+    forAllConstIter
+    (
+      interfaceTrackingModelTable,
+      interfaceTrackingModels_,
+      interfaceTrackingModelIter
+    )
+    {
+        const phasePair& pair(this->phasePairs_[interfaceTrackingModelIter.key()]);
+
+        const phaseModel& phase = pair.continuous();
+        const volScalarField dmdt(this->rDmdt(pair));
+        const dimensionedScalar coeff(dimless, 1.0 - coeff_[interfaceTrackingModelIter.key()]);
+
+        const PtrList<volScalarField>& Yi = phase.Y();
+
+        const dimensionedScalar fH2(dimless, 1.5*MW_.H2);
+        const dimensionedScalar xi(dimless, MW_.Al/(MW_.H2O*eqR_));
+        const dimensionedScalar fH2O((xi - 1.5)*MW_.H2O);
+        const volScalarField X(dmdt/(fH2 + fH2O));
+
+        if (min(X).value() < 0 || fH2.value() < 0 || fH2O.value() < 0)
+        {
+          FatalErrorInFunction
+              << "Mass Transfer(): dmdt or one of the factors are negative"
+              << exit(FatalError);
+        }
+
+        if (eqns.size() != 0)
+        {
+          *eqns[Yi[0].name()] += X*fH2;
+          *eqns[Yi[1].name()] += X*fH2O;
+        }
+
+    }
     return eqnsPtr;
 }
 
