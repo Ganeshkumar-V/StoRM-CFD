@@ -87,6 +87,9 @@ protected:
           scalar H2;
         } MW_;
 
+        // Active Aluminium content
+        scalar AAlC_;
+
         // Equivalence Ratio
         scalar eqR_;
 

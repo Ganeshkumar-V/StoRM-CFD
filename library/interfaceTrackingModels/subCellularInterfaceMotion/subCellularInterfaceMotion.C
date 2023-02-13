@@ -130,11 +130,13 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
   const surfaceScalarField& Sf = mesh.magSf();
   const scalar dt = mesh.time().deltaTValue();
   const scalarField& V = mesh.V();
+  const scalar One(1 - SMALL);
+  const scalar Zero(SMALL);
 
   forAll(Own, i)
   {
     // case:1 Interface is present at the center of the owner cell
-    if (alpha0[Own[i]] == 0.5 && alpha0[Nei[i]] == 1)
+    if (alpha0[Own[i]] == 0.5 && alpha0[Nei[i]] == One)
     {
       interface_[Own[i]] = 1;
       As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
@@ -154,7 +156,7 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
       }
     }
     // case:2 Interface is present in between owner center and face
-    else if ((alpha0[Own[i]] < 0.5) && (alpha0[Nei[i]] == 1))
+    else if ((alpha0[Own[i]] < 0.5) && (alpha0[Nei[i]] == One))
     {
       interface_[Own[i]] = 1;
       As_[Own[i]] = Sf[i]/V[Own[i]];  // Area of face between owner and neighbour
@@ -174,7 +176,7 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
       }
     }
     // case:3 Interface is present exactly at the face
-    else if ((alpha0[Own[i]] == 0) && (alpha0[Nei[i]] == 1))
+    else if ((alpha0[Own[i]] == Zero) && (alpha0[Nei[i]] == One))
     {
       interface_[Own[i]] = 1;
       As_[Own[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
@@ -188,7 +190,7 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
       }
     }
     // case:4 Interface is present in between face and neighbour center
-    else if ((alpha0[Own[i]] == 0) && (alpha0[Nei[i]] > 0.5))
+    else if ((alpha0[Own[i]] == Zero) && (alpha0[Nei[i]] > 0.5))
     {
       interface_[Own[i]] = 1;
       As_[Own[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
@@ -308,26 +310,28 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::findInterface
   const fvMesh& mesh = alpha.mesh();
   const labelList& Own = mesh.owner();
   const labelList& Nei = mesh.neighbour();
+  const scalar One(1 - SMALL);
+  const scalar Zero(SMALL);
 
   forAll(Own, i)
   {
     // case:1 Interface is present at the center of the owner cell
-    if (alpha[Own[i]] == 0.5 && alpha[Nei[i]] == 1)
+    if (alpha[Own[i]] == 0.5 && alpha[Nei[i]] == One)
     {
       interface_[Own[i]] = 1;
     }
     // case:2 Interface is present in between owner center and face
-    else if ((alpha[Own[i]] < 0.5) && (alpha[Nei[i]] == 1))
+    else if ((alpha[Own[i]] < 0.5) && (alpha[Nei[i]] == One))
     {
       interface_[Own[i]] = 1;
     }
     // case:3 Interface is present exactly at the center
-    else if ((alpha[Own[i]] == 0) && (alpha[Nei[i]] == 1))
+    else if ((alpha[Own[i]] == Zero) && (alpha[Nei[i]] == One))
     {
       interface_[Own[i]] = 1;
     }
     // case:4 Interface is present in between face and neighbour center
-    else if ((alpha[Own[i]] == 0) && (alpha[Nei[i]] > 0.5))
+    else if ((alpha[Own[i]] == Zero) && (alpha[Nei[i]] > 0.5))
     {
       interface_[Own[i]] = 1;
     }
@@ -347,5 +351,11 @@ Foam::tmp<Foam::volScalarField>
 Foam::interfaceTrackingModels::subCellularInterfaceMotion::As() const
 {
     return Foam::tmp<Foam::volScalarField>(new volScalarField("tAs", As_));
+}
+
+Foam::tmp<Foam::volVectorField>
+Foam::interfaceTrackingModels::subCellularInterfaceMotion::nHat() const
+{
+    return As_*dimensionedScalar(dimLength, 1.0)*vector(1, 0, 0)/max(Foam::mag(As_*dimensionedScalar(dimLength, 1.0)), SMALL);
 }
 // ************************************************************************* //

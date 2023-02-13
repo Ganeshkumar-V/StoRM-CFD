@@ -200,7 +200,6 @@ void Foam::multiPhaseSystem::solveAlphas()
     labelHashSet fixedAlphaPhiCorrs;
     forAll(stationaryPhases(), stationaryPhasei)
     {
-      Info << "Stationary Phase is found" << endl;
         fixedAlphaPhiCorrs.insert(stationaryPhases()[stationaryPhasei].index());
     }
     MULES::limitSum(alphafs, alphaPhiCorrs, fixedAlphaPhiCorrs);
@@ -356,14 +355,14 @@ void Foam::multiPhaseSystem::solveAlphas()
         << endl;
 
     // Correct the sum of the phase fractions to avoid drift
-    // forAll(movingPhases(), movingPhasei)
-    // {
-    //     movingPhases()[movingPhasei] *= alphaVoid/sumAlphaMoving;
-    //
-    //     // cliping volume fraction for moving phases to avoid division by zero
-    //     phaseModel& phase = movingPhases()[movingPhasei];
-    //     phase.clip(SMALL, 1 - SMALL);
-    // }
+    forAll(movingPhases(), movingPhasei)
+    {
+        movingPhases()[movingPhasei] *= alphaVoid/sumAlphaMoving;
+
+        // cliping volume fraction for moving phases to avoid division by zero
+        phaseModel& phase = movingPhases()[movingPhasei];
+        phase.clip(SMALL, 1 - SMALL);
+    }
 }
 
 

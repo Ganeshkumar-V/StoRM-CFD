@@ -112,6 +112,7 @@ protected:
         dimensionedScalar rhoPropellant;
         dimensionedScalar rhoParticle;
         dimensionedScalar alphaRhoAl;
+        bool regress_;
 
         // Inlet velocity
         volVectorField Ug_;
@@ -175,6 +176,9 @@ public:
 
         //- Return the momentum transfer matrices
         virtual autoPtr<phaseSystem::momentumTransferTable> momentumTransfer();
+
+        //- Regress Propellant Surface
+        virtual void solve();
 
         //- Correct the mass transfer rates
         virtual void correct();

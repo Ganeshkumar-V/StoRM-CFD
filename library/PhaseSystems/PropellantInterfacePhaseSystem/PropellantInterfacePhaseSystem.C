@@ -186,6 +186,7 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::PropellantInterfacePhaseS
     MW_.H2O = molecularWeights_.get<scalar>("H2O");
     MW_.H2 = molecularWeights_.get<scalar>("H2");
     AAlC_ = this->template get<scalar>("activeAlContent");
+    regress_ = this->template get<bool>("regression");
 
     R_.value() = 8314.5/MW_.H2;
     alphaRhoAl.value() = rhoPropellant.value()*eqR_/(1 + eqR_);
@@ -433,6 +434,30 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::momentumTransfer()
   }
 
   return eqnsPtr;
+}
+
+template<class BasePhaseSystem>
+void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::solve()
+{
+  // Regress Propellant surface (Manipulate propellant volume fraction)
+  if (regress_)
+  {
+    forAllIter
+    (
+      interfaceTrackingModelTable,
+      interfaceTrackingModels_,
+      interfaceTrackingModelIter
+    )
+    {
+      word propellant = "alpha." + interfaceTrackingModelIter()->propellant_;
+      volScalarField& alpha = this->db().template lookupObjectRef<volScalarField>(propellant);
+      interfaceTrackingModelIter()->regress(alpha);
+      alpha.clip(SMALL, 1-SMALL);
+    }
+  }
+
+  // Solve other phase volume fraction equations
+  BasePhaseSystem::solve();
 }
 
 template<class BasePhaseSystem>
