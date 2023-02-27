@@ -283,41 +283,16 @@ void Foam::multiPhaseSystem::solveAlphas()
             }
         }
 
-        if (phase.moving())
-        {
-          MULES::explicitSolve
-          (
-            geometricOneField(),
-            alpha,
-            alphaPhi,
-            Sp,
-            Su
-          );
+        MULES::explicitSolve
+        (
+          geometricOneField(),
+          alpha,
+          alphaPhi,
+          Sp,
+          Su
+        );
 
-          phase.alphaPhiRef() = alphaPhi;
-        }
-        else
-        {
-          if (isoAdvection_)
-          {
-            // Iso-Advection of Static Phase Model
-            advector->advect(Sp, Su);
-          }
-          else
-          {
-            // MULES
-            MULES::explicitSolve
-            (
-              geometricOneField(),
-              alpha,
-              phase.alphaPhi(),
-              Sp,
-              Su
-            );
-          }
-        }
-
-        phase.clip(SMALL, 1 - SMALL);
+        phase.alphaPhiRef() = alphaPhi;
     }
 
     // Report the phase fractions and the phase fraction sum
@@ -358,10 +333,6 @@ void Foam::multiPhaseSystem::solveAlphas()
     forAll(movingPhases(), movingPhasei)
     {
         movingPhases()[movingPhasei] *= alphaVoid/sumAlphaMoving;
-
-        // cliping volume fraction for moving phases to avoid division by zero
-        phaseModel& phase = movingPhases()[movingPhasei];
-        phase.clip(SMALL, 1 - SMALL);
     }
 }
 
@@ -567,26 +538,6 @@ Foam::multiPhaseSystem::multiPhaseSystem
     {
         volScalarField& alphai = phases()[phasei];
         mesh_.setFluxRequired(alphai.name());
-
-        // Set IsoAdvection Phase
-        if(!phases()[phasei].moving())
-        {
-          if(advector == nullptr)
-          {
-            advector =
-                new isoAdvection
-                (
-                  alphai,
-                  phases()[phasei].phi(),
-                  phases()[phasei].U()
-                );
-          }
-          else
-          {
-            FatalErrorInFunction << "More than one static phase model " <<
-            "is currently not supported by this solver" << exit(FatalError);
-          }
-        }
     }
 }
 
@@ -732,7 +683,7 @@ void Foam::multiPhaseSystem::solve()
         {
             phaseModel& phase = phases()[phasei];
             if (phase.stationary()) continue;
-            if (!phase.moving()) continue;
+
             phase.alphaPhiRef() = alphaPhiSums[phasei]/nAlphaSubCycles;
         }
     }
@@ -745,7 +696,7 @@ void Foam::multiPhaseSystem::solve()
     {
         phaseModel& phase = phases()[phasei];
         if (phase.stationary()) continue;
-        if (!phase.moving()) continue;
+
         phase.alphaRhoPhiRef() =
             fvc::interpolate(phase.rho())*phase.alphaPhi();
 
