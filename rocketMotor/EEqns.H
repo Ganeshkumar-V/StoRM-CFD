@@ -41,7 +41,6 @@ for (int Ecorr=0; Ecorr<nEnergyCorrectors; Ecorr++)
         fvOptions.correct(phase.thermoRef().he());
 
         // Correct for Adiabatic Walls
-        // ImposeWall(phase.thermoRef().he(), phases[propellantIndex], Wall, WallPatch);
         ImposeWall(phase.thermoRef().he(), phases[propellantIndex]);
     }
 

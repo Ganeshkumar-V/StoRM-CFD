@@ -195,9 +195,18 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
     // case:4 Interface is present in between face and neighbour center
     else if ((alpha0[Own[i]] == Zero) && (alpha0[Nei[i]] > 0.5))
     {
-      interface_[Nei[i]] = 1;
-      As_[Nei[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
-      alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Nei[i]]*Sf[i]*dt/V[Nei[i]];
+      if (alpha0[Nei[i]] > 0.99)
+      {
+        interface_[Own[i]] = 1;
+        As_[Own[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
+        alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Own[i]]*Sf[i]*dt/V[Nei[i]];
+      }
+      else
+      {
+        interface_[Nei[i]] = 1;
+        As_[Nei[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
+        alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Nei[i]]*Sf[i]*dt/V[Nei[i]];
+      }
       if (alpha[Nei[i]] < 0)
       {
         FatalErrorInFunction

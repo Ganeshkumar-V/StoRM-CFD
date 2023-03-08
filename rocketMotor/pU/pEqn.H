@@ -168,6 +168,14 @@ while (pimple.correct())
         }
     }
 
+    // Correct phiHbyAs
+    forAll(phases, phasei)
+    {
+      if (propellantIndex == -1) continue;
+      correctFlux(phiHbyAs[phasei], phases[propellantIndex]);
+      correctU(HbyAs[phasei], phases[propellantIndex]);
+    }
+
     // Total predicted flux
     surfaceScalarField phiHbyA
     (
@@ -385,6 +393,13 @@ while (pimple.correct())
 
             surfaceScalarField mSfGradp("mSfGradp", pEqnIncomp.flux()/rAUf);
 
+            // correctFluxes
+            if (propellantIndex != -1)
+            {
+              correctFlux(phi, phases[propellantIndex]);
+              correctFlux(mSfGradp, phases[propellantIndex]);
+            }
+
             forAll(fluid.movingPhases(), movingPhasei)
             {
                 phaseModel& phase = fluid.movingPhases()[movingPhasei];
@@ -405,6 +420,12 @@ while (pimple.correct())
 
             mSfGradp = pEqnIncomp.flux()/rAUf;
 
+            // correctFluxes
+            if (propellantIndex != -1)
+            {
+              correctFlux(mSfGradp, phases[propellantIndex]);
+            }
+
             forAll(fluid.movingPhases(), movingPhasei)
             {
                 phaseModel& phase = fluid.movingPhases()[movingPhasei];
@@ -416,6 +437,9 @@ while (pimple.correct())
                         alpharAUfs[phase.index()]*mSfGradp
                       - phigFs[phase.index()]
                     );
+
+                // correct Fluxes
+                correctU(phase.URef(), phases[propellantIndex]);
             }
 
             if (partialElimination)

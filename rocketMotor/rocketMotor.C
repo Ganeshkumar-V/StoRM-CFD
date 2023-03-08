@@ -86,9 +86,6 @@ int main(int argc, char *argv[])
     scalarField setTemp(0, 0);
     vectorField setVelocity(0, vector(0, 0, 0));
     label propellantIndex = fluid.get<label>("propellantIndex");
-    labelList Wall(0);
-    labelList WallPatch(0);
-    findWalls(phases[propellantIndex], Wall, WallPatch);
 
     while (runTime.run())
     {
