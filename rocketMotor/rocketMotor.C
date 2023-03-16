@@ -102,6 +102,9 @@ int main(int argc, char *argv[])
         runTime++;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
+        // Store Old Time
+        fluid.store();
+
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {

@@ -260,13 +260,14 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::correct()
 
 void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
 (
-  volScalarField& alpha
+  volScalarField& alpha,
+  const volScalarField& alphaOld
 )
 {
   const phaseModel& phase = pair_.phase1();
   const volScalarField& p = phase.db().lookupObject<volScalarField>("p");
 
-  const volScalarField& alpha0 = alpha.oldTime();
+  const volScalarField& alpha0 = alphaOld;
 
   const fvMesh& mesh = alpha.mesh();
   const labelList& Own = mesh.owner();
@@ -351,6 +352,9 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
       {
         interface_[fC[celli]] = 1.0;
         As_[fC[celli]] = pSf[celli]/V[fC[celli]];
+        rb_[fC[celli]] = (a*pow(p[fC[celli]]/1e6, n)).value()*1e-2;  // burning Rate
+        dmdt_[fC[celli]] = rb_[fC[celli]]*As_[fC[celli]];
+
         alpha[fC[celli]] = alpha0[fC[celli]] - rb_[fC[celli]]*As_[fC[celli]]*dt;
         if (alpha[fC[celli]] < 0)
         {

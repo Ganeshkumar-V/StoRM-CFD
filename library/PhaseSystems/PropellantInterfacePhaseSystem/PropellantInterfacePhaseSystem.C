@@ -90,6 +90,22 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::PropellantInterfacePhaseS
     rhoPropellant("rhoprop", dimDensity, this->template get<scalar>("propellantRho")),
     rhoParticle("rhopar", dimDensity, this->template get<scalar>("particleRho")),
     alphaRhoAl("alphaRhoAl", dimDensity, 0),
+    alphaOld
+    (
+      volScalarField
+      (
+        IOobject
+        (
+          "alphaOld",
+          mesh.time().timeName(),
+          mesh,
+          IOobject::NO_READ,
+          IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("", dimless,0)
+      )
+    ),
     Ug_
     (
       volVectorField
@@ -192,6 +208,18 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::PropellantInterfacePhaseS
 
     R_.value() = 8314.5/MW_.H2;
     alphaRhoAl.value() = rhoPropellant.value()*eqR_/(1 + eqR_);
+
+    // Old Alpha
+    forAllIter
+    (
+      interfaceTrackingModelTable,
+      interfaceTrackingModels_,
+      interfaceTrackingModelIter
+    )
+    {
+      word propellant = "alpha." + interfaceTrackingModelIter()->propellant_;
+      alphaOld = this->db().template lookupObject<volScalarField>(propellant);
+    }
 
     // Coefficient of mass transfer
     forAllConstIter
@@ -454,7 +482,7 @@ void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::solve()
     {
       word propellant = "alpha." + interfaceTrackingModelIter()->propellant_;
       volScalarField& alpha = this->db().template lookupObjectRef<volScalarField>(propellant);
-      interfaceTrackingModelIter()->regress(alpha);
+      interfaceTrackingModelIter()->regress(alpha, alphaOld);
       alpha.clip(SMALL, 1-SMALL);
     }
   }
@@ -537,6 +565,21 @@ void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::correct()
 
     // calculate velocity of the gas and particle source
     calculateVelocity();
+}
+
+template<class BasePhaseSystem>
+void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::store()
+{
+  forAllIter
+  (
+    interfaceTrackingModelTable,
+    interfaceTrackingModels_,
+    interfaceTrackingModelIter
+  )
+  {
+    word propellant = "alpha." + interfaceTrackingModelIter()->propellant_;
+    alphaOld = this->db().template lookupObject<volScalarField>(propellant);
+  }
 }
 
 template<class BasePhaseSystem>

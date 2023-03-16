@@ -115,6 +115,7 @@ protected:
         dimensionedScalar rhoParticle;
         dimensionedScalar alphaRhoAl;
         bool regress_;
+        volScalarField alphaOld;
 
         // Inlet velocity
         volVectorField Ug_;
@@ -181,6 +182,9 @@ public:
 
         //- Regress Propellant Surface
         virtual void solve();
+
+        //- Store old Times
+        virtual void store();
 
         //- Correct the mass transfer rates
         virtual void correct();

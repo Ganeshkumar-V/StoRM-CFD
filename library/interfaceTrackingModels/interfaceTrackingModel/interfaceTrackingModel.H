@@ -122,7 +122,7 @@ public:
 
     // Member Functions
     virtual void correct() = 0;
-    virtual void regress(volScalarField& alpha) = 0;
+    virtual void regress(volScalarField& alpha, const volScalarField& alphaOld) = 0;
 
     virtual void findInterface(const volScalarField& alpha) = 0;
 

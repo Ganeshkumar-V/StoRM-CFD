@@ -416,7 +416,7 @@ void Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::solve()
   {
     word propellant = "alpha." + interfaceTrackingModelIter()->propellant_;
     volScalarField& alpha = this->db().template lookupObjectRef<volScalarField>(propellant);
-    interfaceTrackingModelIter()->regress(alpha);
+    interfaceTrackingModelIter()->regress(alpha, alpha);
   }
 
   // Solve other phase volume fraction equations
@@ -459,6 +459,10 @@ void Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::correct()
     calculateVelocity();
 
 }
+
+template<class BasePhaseSystem>
+void Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::store()
+{}
 
 template<class BasePhaseSystem>
 void Foam::PropellantRegressionPhaseSystem<BasePhaseSystem>::calculateVelocity()
