@@ -24,19 +24,19 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::PropellantInterfacePhaseSystem
+    Foam::PropellantCombustionPhaseSystem
 
 Description
     Class which models non-thermally-coupled mass transfers; i.e.,
     representation changes, rather than phase changes.
 
 SourceFiles
-    PropellantInterfacePhaseSystem.C
+    PropellantCombustionPhaseSystem.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef PropellantInterfacePhaseSystem_H
-#define PropellantInterfacePhaseSystem_H
+#ifndef PropellantCombustionPhaseSystem_H
+#define PropellantCombustionPhaseSystem_H
 
 #include "phaseSystem.H"
 #include "saturationModel.H"
@@ -49,11 +49,11 @@ namespace Foam
 class interfaceTrackingModel;
 
 /*---------------------------------------------------------------------------*\
-                    Class PropellantInterfacePhaseSystem Declaration
+                    Class PropellantCombustionPhaseSystem Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class BasePhaseSystem>
-class PropellantInterfacePhaseSystem
+class PropellantCombustionPhaseSystem
 :
     public BasePhaseSystem
 {
@@ -153,11 +153,11 @@ public:
     // Constructors
 
         //- Construct from fvMesh
-        PropellantInterfacePhaseSystem(const fvMesh&);
+        PropellantCombustionPhaseSystem(const fvMesh&);
 
 
     //- Destructor
-    virtual ~PropellantInterfacePhaseSystem();
+    virtual ~PropellantCombustionPhaseSystem();
 
     typedef PtrListDictionary<phaseModel> phaseModelList;
 
@@ -206,7 +206,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-    #include "PropellantInterfacePhaseSystem.C"
+    #include "PropellantCombustionPhaseSystem.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

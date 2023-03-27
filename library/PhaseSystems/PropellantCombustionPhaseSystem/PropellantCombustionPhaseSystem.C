@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "PropellantInterfacePhaseSystem.H"
+#include "PropellantCombustionPhaseSystem.H"
 #include "interfaceTrackingModel.H"
 #include "fvmSup.H"
 #include "phaseSystem.H"
@@ -35,7 +35,7 @@ License
 
 template<class BasePhaseSystem>
 Foam::tmp<Foam::volScalarField>
-Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::rDmdt
+Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::rDmdt
 (
     const phasePairKey& key
 ) const
@@ -53,7 +53,7 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::rDmdt
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class BasePhaseSystem>
-Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::PropellantInterfacePhaseSystem
+Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::PropellantCombustionPhaseSystem
 (
     const fvMesh& mesh
 )
@@ -295,22 +295,22 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::PropellantInterfacePhaseS
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class BasePhaseSystem>
-Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::
-~PropellantInterfacePhaseSystem()
+Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::
+~PropellantCombustionPhaseSystem()
 {}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 template<class BasePhaseSystem>
 const Foam::saturationModel&
-Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::saturation() const
+Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::saturation() const
 {
     return saturationModel_();
 }
 
 template<class BasePhaseSystem>
 Foam::tmp<Foam::volScalarField>
-Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::dmdt
+Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::dmdt
 (
     const phasePairKey& key
 ) const
@@ -322,7 +322,7 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::dmdt
 
 template<class BasePhaseSystem>
 Foam::PtrList<Foam::volScalarField>
-Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::dmdts() const
+Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::dmdts() const
 {
     PtrList<volScalarField> dmdts(BasePhaseSystem::dmdts());
 
@@ -349,7 +349,7 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::dmdts() const
 
 template<class BasePhaseSystem>
 Foam::autoPtr<Foam::phaseSystem::massTransferTable>
-Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::massTransfer() const
+Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::massTransfer() const
 {
     // Create a mass transfer matrix for each species of each phase
     autoPtr<phaseSystem::massTransferTable> eqnsPtr
@@ -413,7 +413,7 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::massTransfer() const
 
 template<class BasePhaseSystem>
 Foam::autoPtr<Foam::phaseSystem::heatTransferTable>
-Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::heatTransfer() const
+Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::heatTransfer() const
 {
   autoPtr<phaseSystem::heatTransferTable> eqnsPtr =
           BasePhaseSystem::heatTransfer();
@@ -453,7 +453,7 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::heatTransfer() const
 
 template<class BasePhaseSystem>
 Foam::autoPtr<Foam::phaseSystem::momentumTransferTable>
-Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::momentumTransfer()
+Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::momentumTransfer()
 {
   autoPtr<phaseSystem::momentumTransferTable> eqnsPtr =
                 BasePhaseSystem::momentumTransfer();
@@ -486,7 +486,7 @@ Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::momentumTransfer()
 }
 
 template<class BasePhaseSystem>
-void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::solve()
+void Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::solve()
 {
   // Regress Propellant surface (Manipulate propellant volume fraction)
   if (regress_)
@@ -510,7 +510,7 @@ void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::solve()
 }
 
 template<class BasePhaseSystem>
-void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::correct()
+void Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::correct()
 {
     BasePhaseSystem::correct();
 
@@ -547,7 +547,7 @@ void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::correct()
 }
 
 template<class BasePhaseSystem>
-void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::store()
+void Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::store()
 {
   forAllIter
   (
@@ -562,7 +562,7 @@ void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::store()
 }
 
 template<class BasePhaseSystem>
-void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::calculateVelocity()
+void Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::calculateVelocity()
 {
     //- Calculate velocity of the gas and particles comes
     //                into the combustion chamber
@@ -589,7 +589,7 @@ void Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::calculateVelocity()
 }
 
 template<class BasePhaseSystem>
-bool Foam::PropellantInterfacePhaseSystem<BasePhaseSystem>::read()
+bool Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::read()
 {
     if (BasePhaseSystem::read())
     {
