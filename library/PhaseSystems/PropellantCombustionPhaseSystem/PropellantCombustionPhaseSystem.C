@@ -59,8 +59,7 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::PropellantCombustionPhas
 )
 :
     BasePhaseSystem(mesh),
-    molecularWeights_(this->subDict("molecularWeight")),
-    eqR_(this->template get<scalar>("equivalenceRatio")),
+    phaseProperties(this),
     Tad
     (
       volScalarField
@@ -69,7 +68,6 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::PropellantCombustionPhas
         dimensionedScalar("", dimTemperature, this->template get<scalar>("Tad"))
       )
     ),
-    zeta(this->template get<scalar>("Efficiency")),
     rb_
     (
       volScalarField
@@ -86,10 +84,7 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::PropellantCombustionPhas
         dimensionedScalar("", dimVelocity,0)
       )
     ),
-    R_("R", dimEnergy/dimMass/dimTemperature, 0),
     rhoPropellant("rhoprop", dimDensity, this->template get<scalar>("propellantRho")),
-    rhoParticle("rhopar", dimDensity, this->template get<scalar>("particleRho")),
-    alphaRhoAl("alphaRhoAl", dimDensity, 0),
     alphaOld
     (
       volScalarField
@@ -158,13 +153,15 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::PropellantCombustionPhas
     saturationModel_
     (
         saturationModel::New(this->subDict("saturationModel"), mesh)
-    )
+    ),
+    eta(phaseProperties)
 {
     this->generatePairsAndSubModels
     (
         "interfaceTracking",
         interfaceTrackingModels_
     );
+    regress_ = this->template get<bool>("regression");
 
     forAllConstIter
     (
@@ -213,19 +210,6 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::PropellantCombustionPhas
         );
     }
 
-    // molecularWeights
-    MW_.Al = molecularWeights_.get<scalar>("Al");
-    MW_.Al2O3 = molecularWeights_.get<scalar>("Al2O3");
-    MW_.H2O = molecularWeights_.get<scalar>("H2O");
-    MW_.H2 = molecularWeights_.get<scalar>("H2");
-    AAlC_ = this->template get<scalar>("activeAlContent");
-    K_ = (MW_.Al/MW_.Al2O3)*(1/AAlC_ - 1);
-    MW_.Prop = MW_.Al + K_*MW_.Al2O3 + (1.5/eqR_)*MW_.H2O;
-    regress_ = this->template get<bool>("regression");
-
-    R_.value() = 8314.5/MW_.H2;
-    alphaRhoAl.value() = rhoPropellant.value()*eqR_/(1 + eqR_);
-
     // Old Alpha
     forAllIter
     (
@@ -237,57 +221,6 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::PropellantCombustionPhas
       word propellant = "alpha." + interfaceTrackingModelIter()->propellant_;
       alphaOld = this->db().template lookupObject<volScalarField>(propellant);
       regressionAlpha = alphaOld;
-    }
-
-    // Coefficient of mass transfer
-    forAllConstIter
-    (
-      interfaceTrackingModelTable,
-      interfaceTrackingModels_,
-      interfaceTrackingModelIter
-    )
-    {
-      scalar gcoeff = 1.0;
-      scalar pcoeff = 1.0;
-
-      if (eqR_ <= 1.0) // Lean or Stoichiometric Mixture
-      {
-        // pcoeff = AAlC_*MW_.Al2O3/(2*MW_.Al*(1 + 1/eqR_)) + (1 - AAlC_);
-        // gcoeff = AAlC_*(1.0 - MW_.Al2O3/(2*MW_.Al*(1 + 1/eqR_)));
-        pcoeff = epsilon*(K_ + 0.5)*MW_.Al2O3/MW_.Prop;
-        gcoeff = (1.5*MW_.H2 + ((1.5/eqR_) - 1.5)*MW_.H2O)/MW_.Prop;
-      }
-      else  // Rich mixture
-      {
-        FatalErrorInFunction << "Equivalence Ratio is greater than 1.0 : "
-        << " Fuel Rich Mixture Coefficients is not implemented"
-        << exit(FatalError);
-      }
-
-      this->pCoeff_.set
-      (
-        interfaceTrackingModelIter.key(),
-        pcoeff
-      );
-      this->gCoeff_.set
-      (
-        interfaceTrackingModelIter.key(),
-        gcoeff
-      );
-    }
-
-    // Exit if efficiency is 0%
-    if (zeta == 0)
-    {
-        FatalErrorInFunction
-            << "Efficiency cannot be 0%\n"
-            << "Choose any number -> (0, 1.0]" << exit(FatalError);
-    }
-    if (zeta > 1.0)
-    {
-        FatalErrorInFunction
-            << "Efficiency cannot be more than 100%\n"
-            << "Choose any number -> (0, 1.0]" << exit(FatalError);
     }
 }
 
@@ -334,8 +267,9 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::dmdts() const
         const phasePair& pair = this->phasePairs_[rDmdtIter.key()];
         const volScalarField& rDmdt = *rDmdtIter();
 
-        const scalar pcoeff = pCoeff_[rDmdtIter.key()];
-        const scalar gcoeff = gCoeff_[rDmdtIter.key()];
+        const factors mtf(eta.massTransfer());
+        const scalar pcoeff = mtf.particles;
+        const scalar gcoeff = (mtf.H2 + mtf.H2O);
 
         this->addField(pair.phase1(), "dmdt", pcoeff*rDmdt, dmdts);
         this->addField(pair.phase2(), "dmdt", gcoeff*rDmdt, dmdts);
@@ -386,12 +320,11 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::massTransfer() const
 
         const phaseModel& phase = pair.continuous();
         const volScalarField dmdt(this->rDmdt(pair));
-        const dimensionedScalar coeff(dimless, gCoeff_[interfaceTrackingModelIter.key()]);
-
         const PtrList<volScalarField>& Yi = phase.Y();
 
-        const dimensionedScalar fH2(dimless, 1.5*MW_.H2/MW_.Prop);
-        const dimensionedScalar fH2O(dimless, (1.5/eqR_ - 1.5)*MW_.H2O/MW_.Prop);
+        const factors mtf(eta.massTransfer());
+        const scalar fH2 = mtf.H2;
+        const scalar fH2O = mtf.H2O;
 
         if (min(dmdt).value() < 0)
         {
@@ -425,8 +358,9 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::heatTransfer() const
     const phasePair& pair = this->phasePairs_[rDmdtIter.key()];
     const volScalarField& rDmdt = *rDmdtIter();
 
-    const scalar pcoeff = pCoeff_[rDmdtIter.key()];
-    const scalar gcoeff = gCoeff_[rDmdtIter.key()];
+    const factors mtf(eta.massTransfer());
+    const scalar pcoeff = mtf.particles;
+    const scalar gcoeff = (mtf.H2 + mtf.H2O);
 
     const phaseModel& phase1 = pair.phase1();
     const phaseModel& phase2 = pair.phase2();
@@ -465,8 +399,9 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::momentumTransfer()
     const phasePair& pair = this->phasePairs_[rDmdtIter.key()];
     const volScalarField& rDmdt = *rDmdtIter();
 
-    const scalar pcoeff = pCoeff_[rDmdtIter.key()];
-    const scalar gcoeff = gCoeff_[rDmdtIter.key()];
+    const factors mtf(eta.massTransfer());
+    const scalar pcoeff = mtf.particles;
+    const scalar gcoeff = (mtf.H2 + mtf.H2O);
 
     const phaseModel& phase1 = pair.phase1();
     const phaseModel& phase2 = pair.phase2();
@@ -567,24 +502,15 @@ void Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::calculateVelocity()
     //- Calculate velocity of the gas and particles comes
     //                into the combustion chamber
 
-    // density of gas phase entering,
-    const tmp<volScalarField> trhog(this->phases()[0].thermo().p()/(Tad*R_));
-    const volScalarField& rhog(trhog());
-
-    // volume fraction of particle phase
-    const tmp<volScalarField> talphap(1/(1 + (rhoParticle/rhog)*(zeta/(8 + 9*eqR_))));
-    const volScalarField& alphap(talphap());
-
     // Velocity of gas and particle phase
     forAllConstIter(interfaceTable, nHat_, nHatIter)
     {
       const volVectorField& nHat = *nHatIter();
 
-      Ug_ = -alphaRhoAl*rb_*nHat/(9.0*eqR_*(1 - alphap)*rhog);
-      Up_ = Ug_*zeta;
-
-      Ug_ += rb_*nHat;
-      Up_ += rb_*nHat;
+      eta.gasVelocity
+      (
+        nHat, (this->phases()[0].thermo().p()), rb_, Ug_
+      );
     }
 }
 

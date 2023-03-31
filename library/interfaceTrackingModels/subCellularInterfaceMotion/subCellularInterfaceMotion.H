@@ -62,6 +62,7 @@ public:
     TypeName("subCellularInterfaceMotion");
 
     scalar n;
+    scalar f;
     dimensionedScalar a;
 
     volScalarField interface_;
@@ -92,6 +93,8 @@ public:
     virtual void regress(volScalarField& alpha, const volScalarField& alphaOld);
 
     virtual void findInterface(const volScalarField& alpha);
+
+    scalar rb(scalar P);
 
     //- The burning rate
     virtual tmp<volScalarField> rb() const;

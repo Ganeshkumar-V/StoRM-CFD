@@ -40,6 +40,7 @@ SourceFiles
 
 #include "phaseSystem.H"
 #include "saturationModel.H"
+#include "ChemicalEfficiency.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -79,41 +80,16 @@ protected:
 
     // Protected data
 
-        // Molecular Weights of all the species
-        dictionary molecularWeights_;
-
-        struct
-        {
-          scalar Al;
-          scalar Al2O3;
-          scalar H2O;
-          scalar H2;
-          scalar Prop;
-        } MW_;
-
-        // Active Aluminium content
-        scalar AAlC_;
-        scalar K_;
-
-        // Equivalence Ratio
-        scalar eqR_;
+        dictionary phaseProperties;
 
         // Adiabatic Flame Temperature
         volScalarField Tad;
 
-        // Efficiency
-        scalar zeta;
-
         // Burning rate
         volScalarField rb_;
 
-        // Universal Gas constant
-        dimensionedScalar R_;
-
         // propellant density
         dimensionedScalar rhoPropellant;
-        dimensionedScalar rhoParticle;
-        dimensionedScalar alphaRhoAl;
         bool regress_;
         volScalarField alphaOld;
         volScalarField regressionAlpha;
@@ -132,12 +108,6 @@ protected:
             rDmdtTable rDmdt_;
 
             interfaceTable nHat_;
-
-            //- Mass Transfer Coefficient for particle phase
-            coeffTable pCoeff_;
-
-            //- Mass Transfer Coefficient for particle phase
-            coeffTable gCoeff_;
 
             //- The saturation model used to evaluate Tsat = Tf
             autoPtr<saturationModel> saturationModel_;
@@ -161,6 +131,8 @@ public:
 
     typedef PtrListDictionary<phaseModel> phaseModelList;
 
+    // Public Data
+    chemicalEfficiency eta;
 
     // Member Functions
 
