@@ -1,15 +1,21 @@
 fvPatchFields/propellantWall/propellantWallFvPatchVectorField.C
 phaseModel/phaseModel/phaseModels.C
 
+multiphaseTurbulence = multiphaseCompressibleTurbulenceModels
+$(multiphaseTurbulence)/multiphaseCompressibleTurbulenceModels.C
+$(multiphaseTurbulence)/multiphaseKineticTheoryModel/multiphaseKineticTheoryModel.C
+
 iTModel = interfaceTrackingModels
 $(iTModel)/interfaceTrackingModel/interfaceTrackingModel.C
 $(iTModel)/subCellularInterfaceMotion/subCellularInterfaceMotion.C
 $(iTModel)/burningRate/burningRate.C
 $(iTModel)/burningRateDy/burningRateDy.C
 
-iFModel = interfacialModels
-$(iFModel)/dragModels/particleDragModel/particleDragModel.C
-$(iFModel)/dragModels/SchillerNaumann/SchillerNaumann.C
+dragModel = interfacialModels/dragModels
+$(dragModel)/particleDragModel/particleDragModel.C
+$(dragModel)/SchillerNaumann/SchillerNaumann.C
+$(dragModel)/Ergun/Ergun.C
+$(dragModel)/WenYu/WenYu.C
 
 HTModel = sharpInterfaceHeatTransferModels
 $(HTModel)/sharpInterfaceHeatTransferModel/sharpInterfaceHeatTransferModel.C

@@ -53,7 +53,7 @@ template<class modelType>
 class BlendedInterfacialModel;
 
 class blendingMethod;
-class particleDragModel;
+class dragModel;
 class virtualMassModel;
 class liftModel;
 class wallLubricationModel;
@@ -102,10 +102,10 @@ protected:
 
         typedef HashTable
         <
-            autoPtr<particleDragModel>,
+            autoPtr<dragModel>,
             phasePairKey,
             phasePairKey::hash
-        > particleDragModelTable;
+        > dragModelTable;
 
         typedef HashTable
         <
@@ -158,7 +158,7 @@ private:
         // Sub Models
 
             //- Drag models
-            particleDragModelTable particleDragModels_;
+            dragModelTable dragModels_;
 
             //- Virtual mass models
             virtualMassModelTable virtualMassModels_;
