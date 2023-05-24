@@ -76,6 +76,9 @@ class JohnsonJacksonTheta
         //- Specularity coefficient
         dimensionedScalar specularityCoefficient_;
 
+        //- phase name
+        word phasename_;
+
 
 public:
 

@@ -568,6 +568,7 @@ void Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::store()
 {
   BasePhaseSystem::store();
   alphaOld = regressionAlpha;
+  // const volScalarField& kappad(this->db().template lookupObject<volScalarField>("kappaParticle"));
 }
 
 template<class BasePhaseSystem>

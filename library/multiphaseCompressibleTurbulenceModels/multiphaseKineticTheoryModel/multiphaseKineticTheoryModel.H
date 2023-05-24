@@ -147,6 +147,9 @@ class multiphaseKineticTheoryModel
             //- The frictional viscosity
             volScalarField nuFric_;
 
+            //- Granular Temperature set Value cutoff
+            scalar cutoff_;
+
 
     // Private Member Functions
 

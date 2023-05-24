@@ -4,6 +4,8 @@ phaseModel/phaseModel/phaseModels.C
 multiphaseTurbulence = multiphaseCompressibleTurbulenceModels
 $(multiphaseTurbulence)/multiphaseCompressibleTurbulenceModels.C
 $(multiphaseTurbulence)/multiphaseKineticTheoryModel/multiphaseKineticTheoryModel.C
+$(multiphaseTurbulence)/BoundaryConditions/JohnsonJacksonTheta/JohnsonJacksonTheta.C
+$(multiphaseTurbulence)/BoundaryConditions/JohnsonJacksonSlip/JohnsonJacksonSlip.C
 
 iTModel = interfaceTrackingModels
 $(iTModel)/interfaceTrackingModel/interfaceTrackingModel.C
@@ -14,6 +16,7 @@ $(iTModel)/burningRateDy/burningRateDy.C
 dragModel = interfacialModels/dragModels
 $(dragModel)/particleDragModel/particleDragModel.C
 $(dragModel)/SchillerNaumann/SchillerNaumann.C
+$(dragModel)/CliftGauvin/CliftGauvin.C
 $(dragModel)/Ergun/Ergun.C
 $(dragModel)/WenYu/WenYu.C
 $(dragModel)/Loth/Loth.C

@@ -23,55 +23,81 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::particleDragModels::CliftGauvin
+
+Description
+    Schiller and Naumann drag model for dispersed bubbly flows.
+
+SourceFiles
+    CliftGauvin.C
+
 \*---------------------------------------------------------------------------*/
 
-#include "SchillerNaumann.H"
-#include "phasePair.H"
-#include "addToRunTimeSelectionTable.H"
+#ifndef CliftGauvin_H
+#define CliftGauvin_H
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+#include "particleDragModel.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+
+class phasePair;
+
 namespace particleDragModels
 {
-    defineTypeNameAndDebug(SchillerNaumann, 0);
-    addToRunTimeSelectionTable(particleDragModel, SchillerNaumann, dictionary);
-}
-}
 
+/*---------------------------------------------------------------------------*\
+                           Class CliftGauvin Declaration
+\*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-Foam::particleDragModels::SchillerNaumann::SchillerNaumann
-(
-    const dictionary& dict,
-    const phasePair& pair,
-    const bool registerObject
-)
+class CliftGauvin
 :
-    particleDragModel(dict, pair, registerObject),
-    residualRe_("residualRe", dimless, dict)
-{}
-
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::particleDragModels::SchillerNaumann::~SchillerNaumann()
-{}
-
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-Foam::tmp<Foam::volScalarField> Foam::particleDragModels::SchillerNaumann::CdRe() const
+    public particleDragModel
 {
-    const tmp<volScalarField> tRe(pair_.Re());
-    const volScalarField& Re(tRe());
+    // Private data
 
-    return
-        neg(Re - 1000)*24*(1.0 + 0.15*pow(Re, 0.687))
-      + pos0(Re - 1000)*0.44*max(Re, residualRe_);
-}
+        //- Residual Reynolds Number
+        const dimensionedScalar residualRe_;
 
+
+public:
+
+    //- Runtime type information
+    TypeName("CliftGauvin");
+
+
+    // Constructors
+
+        //- Construct from a dictionary and a phase pair
+        CliftGauvin
+        (
+            const dictionary& dict,
+            const phasePair& pair,
+            const bool registerObject
+        );
+
+
+    //- Destructor
+    virtual ~CliftGauvin();
+
+
+    // Member Functions
+
+        //- Drag coefficient
+        virtual tmp<volScalarField> CdRe() const;
+};
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace particleDragModels
+} // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
 
 // ************************************************************************* //

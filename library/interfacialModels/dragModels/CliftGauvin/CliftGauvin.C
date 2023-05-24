@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "SchillerNaumann.H"
+#include "CliftGauvin.H"
 #include "phasePair.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -35,15 +35,15 @@ namespace Foam
 {
 namespace particleDragModels
 {
-    defineTypeNameAndDebug(SchillerNaumann, 0);
-    addToRunTimeSelectionTable(particleDragModel, SchillerNaumann, dictionary);
+    defineTypeNameAndDebug(CliftGauvin, 0);
+    addToRunTimeSelectionTable(particleDragModel, CliftGauvin, dictionary);
 }
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::particleDragModels::SchillerNaumann::SchillerNaumann
+Foam::particleDragModels::CliftGauvin::CliftGauvin
 (
     const dictionary& dict,
     const phasePair& pair,
@@ -57,20 +57,18 @@ Foam::particleDragModels::SchillerNaumann::SchillerNaumann
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::particleDragModels::SchillerNaumann::~SchillerNaumann()
+Foam::particleDragModels::CliftGauvin::~CliftGauvin()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> Foam::particleDragModels::SchillerNaumann::CdRe() const
+Foam::tmp<Foam::volScalarField> Foam::particleDragModels::CliftGauvin::CdRe() const
 {
     const tmp<volScalarField> tRe(pair_.Re());
     const volScalarField& Re(tRe());
 
-    return
-        neg(Re - 1000)*24*(1.0 + 0.15*pow(Re, 0.687))
-      + pos0(Re - 1000)*0.44*max(Re, residualRe_);
+    return 24*(1 + 0.015*pow(Re, 0.687) + 0.0175*(1 + 42500*pow(Re, -1.16)));
 }
 
 

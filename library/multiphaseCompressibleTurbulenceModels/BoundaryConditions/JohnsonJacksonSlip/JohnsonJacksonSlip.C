@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "JohnsonJacksonTheta.H"
+#include "JohnsonJacksonSlip.H"
 #include "addToRunTimeSelectionTable.H"
 #include "multiPhaseSystem.H"
 
@@ -35,65 +35,54 @@ namespace Foam
 {
     makePatchTypeField
     (
-        fvPatchScalarField,
-        JohnsonJacksonTheta
+        fvPatchVectorField,
+        JohnsonJacksonSlip
     );
 }
 
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::JohnsonJacksonTheta::JohnsonJacksonTheta
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+Foam::JohnsonJacksonSlip::
+JohnsonJacksonSlip
 (
     const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF
+    const DimensionedField<vector, volMesh>& iF
 )
 :
-    mixedFvPatchScalarField(p, iF),
-    restitutionCoefficient_("restitutionCoefficient", dimless, Zero),
+    partialSlipFvPatchVectorField(p, iF),
     specularityCoefficient_("specularityCoefficient", dimless, Zero),
     phasename_("particles")
 {}
 
 
-Foam::JohnsonJacksonTheta::JohnsonJacksonTheta
+Foam::JohnsonJacksonSlip::
+JohnsonJacksonSlip
 (
-    const JohnsonJacksonTheta& ptf,
+    const JohnsonJacksonSlip& ptf,
     const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
+    const DimensionedField<vector, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    mixedFvPatchScalarField(ptf, p, iF, mapper),
-    restitutionCoefficient_(ptf.restitutionCoefficient_),
+    partialSlipFvPatchVectorField(ptf, p, iF, mapper),
     specularityCoefficient_(ptf.specularityCoefficient_),
     phasename_(ptf.phasename_)
-{
-}
+{}
 
 
-Foam::JohnsonJacksonTheta::JohnsonJacksonTheta
+Foam::JohnsonJacksonSlip::
+JohnsonJacksonSlip
 (
     const fvPatch& p,
-    const DimensionedField<scalar, volMesh>& iF,
+    const DimensionedField<vector, volMesh>& iF,
     const dictionary& dict
 )
 :
-    mixedFvPatchScalarField(p, iF),
-    restitutionCoefficient_("restitutionCoefficient", dimless, dict),
+    partialSlipFvPatchVectorField(p, iF),
     specularityCoefficient_("specularityCoefficient", dimless, dict),
     phasename_(dict.get<word>("phase"))
 {
-    if
-    (
-        (restitutionCoefficient_.value() < 0)
-     || (restitutionCoefficient_.value() > 1)
-    )
-    {
-        FatalErrorInFunction
-            << "The restitution coefficient has to be between 0 and 1"
-            << abort(FatalError);
-    }
-
     if
     (
         (specularityCoefficient_.value() < 0)
@@ -105,33 +94,33 @@ Foam::JohnsonJacksonTheta::JohnsonJacksonTheta
             << abort(FatalError);
     }
 
-    fvPatchScalarField::operator=
+    fvPatchVectorField::operator=
     (
-        scalarField("value", dict, p.size())
+        vectorField("value", dict, p.size())
     );
 }
 
 
-Foam::JohnsonJacksonTheta::JohnsonJacksonTheta
+Foam::JohnsonJacksonSlip::
+JohnsonJacksonSlip
 (
-    const JohnsonJacksonTheta& ptf
+    const JohnsonJacksonSlip& ptf
 )
 :
-    mixedFvPatchScalarField(ptf),
-    restitutionCoefficient_(ptf.restitutionCoefficient_),
+    partialSlipFvPatchVectorField(ptf),
     specularityCoefficient_(ptf.specularityCoefficient_),
     phasename_(ptf.phasename_)
 {}
 
 
-Foam::JohnsonJacksonTheta::JohnsonJacksonTheta
+Foam::JohnsonJacksonSlip::
+JohnsonJacksonSlip
 (
-    const JohnsonJacksonTheta& ptf,
-    const DimensionedField<scalar, volMesh>& iF
+    const JohnsonJacksonSlip& ptf,
+    const DimensionedField<vector, volMesh>& iF
 )
 :
-    mixedFvPatchScalarField(ptf, iF),
-    restitutionCoefficient_(ptf.restitutionCoefficient_),
+    partialSlipFvPatchVectorField(ptf, iF),
     specularityCoefficient_(ptf.specularityCoefficient_),
     phasename_(ptf.phasename_)
 {}
@@ -139,26 +128,26 @@ Foam::JohnsonJacksonTheta::JohnsonJacksonTheta
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::JohnsonJacksonTheta::autoMap
+void Foam::JohnsonJacksonSlip::autoMap
 (
     const fvPatchFieldMapper& m
 )
 {
-    mixedFvPatchScalarField::autoMap(m);
+    partialSlipFvPatchVectorField::autoMap(m);
 }
 
 
-void Foam::JohnsonJacksonTheta::rmap
+void Foam::JohnsonJacksonSlip::rmap
 (
-    const fvPatchScalarField& ptf,
+    const fvPatchVectorField& ptf,
     const labelList& addr
 )
 {
-    mixedFvPatchScalarField::rmap(ptf, addr);
+    partialSlipFvPatchVectorField::rmap(ptf, addr);
 }
 
 
-void Foam::JohnsonJacksonTheta::updateCoeffs()
+void Foam::JohnsonJacksonSlip::updateCoeffs()
 {
     if (updated())
     {
@@ -174,14 +163,6 @@ void Foam::JohnsonJacksonTheta::updateCoeffs()
         )
     );
 
-    const fvPatchVectorField& U
-    (
-        patch().lookupPatchField<volVectorField, vector>
-        (
-            IOobject::groupName("U", phasename_)
-        )
-    );
-
     const fvPatchScalarField& gs0
     (
         patch().lookupPatchField<volScalarField, scalar>
@@ -190,15 +171,30 @@ void Foam::JohnsonJacksonTheta::updateCoeffs()
         )
     );
 
-    const fvPatchScalarField& kappa
+    const scalarField nu
     (
         patch().lookupPatchField<volScalarField, scalar>
         (
-            IOobject::groupName("kappa", phasename_)
+            IOobject::groupName("nut", phasename_)
         )
     );
 
-    const scalarField Theta(patchInternalField());
+    const scalarField nuFric
+    (
+        patch().lookupPatchField<volScalarField, scalar>
+        (
+            IOobject::groupName("nuFric", phasename_)
+        )
+    );
+
+    word ThetaName(IOobject::groupName("Theta", phasename_));
+
+    const fvPatchScalarField& Theta
+    (
+        db().foundObject<volScalarField>(ThetaName)
+      ? patch().lookupPatchField<volScalarField, scalar>(ThetaName)
+      : alpha
+    );
 
     // lookup the packed volume fraction
     dimensionedScalar alphaMax
@@ -214,58 +210,29 @@ void Foam::JohnsonJacksonTheta::updateCoeffs()
        .subDict("kineticTheoryCoeffs")
     );
 
-    // calculate the reference value and the value fraction
-    if (restitutionCoefficient_.value() != 1.0)
-    {
-        this->refValue() =
-            (2.0/3.0)
-           *specularityCoefficient_.value()
-           *magSqr(U)
-           /(scalar(1) - sqr(restitutionCoefficient_.value()));
+    // calculate the slip value fraction
+    scalarField c
+    (
+        constant::mathematical::pi
+       *alpha
+       *gs0
+       *specularityCoefficient_.value()
+       *sqrt(3*Theta)
+       /max(6*(nu - nuFric)*alphaMax.value(), SMALL)
+    );
 
-        this->refGrad() = 0.0;
+    this->valueFraction() = c/(c + patch().deltaCoeffs());
 
-        scalarField c
-        (
-             constant::mathematical::pi*alpha*gs0
-            *(scalar(1) - sqr(restitutionCoefficient_.value()))
-            *sqrt(3*Theta)
-            /max(4*kappa*alphaMax.value(), SMALL)
-        );
-
-        this->valueFraction() = c/(c + patch().deltaCoeffs());
-    }
-
-    // for a restitution coefficient of 1, the boundary degenerates to a fixed
-    // gradient condition
-    else
-    {
-        this->refValue() = 0.0;
-
-        this->refGrad() =
-            pos0(alpha - SMALL)
-           *constant::mathematical::pi
-           *specularityCoefficient_.value()
-           *alpha
-           *gs0
-           *sqrt(3*Theta)
-           *magSqr(U)
-           /max(6*kappa*alphaMax.value(), SMALL);
-
-        this->valueFraction() = 0;
-    }
-
-    mixedFvPatchScalarField::updateCoeffs();
+    partialSlipFvPatchVectorField::updateCoeffs();
 }
 
 
-void Foam::JohnsonJacksonTheta::write
+void Foam::JohnsonJacksonSlip::write
 (
     Ostream& os
 ) const
 {
-    fvPatchScalarField::write(os);
-    os.writeEntry("restitutionCoefficient", restitutionCoefficient_);
+    fvPatchVectorField::write(os);
     os.writeEntry("specularityCoefficient", specularityCoefficient_);
     os.writeEntry("phase", phasename_);
     writeEntry("value", os);

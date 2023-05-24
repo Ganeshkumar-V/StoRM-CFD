@@ -178,7 +178,9 @@ Foam::RASModels::multiphaseKineticTheoryModel::multiphaseKineticTheoryModel
         ),
         U.mesh(),
         dimensionedScalar(dimViscosity, Zero)
-    )
+    ),
+
+    cutoff_(kineticCoeffDict_.get<scalar>("cutoff"))
 {
     if (type == typeName)
     {
@@ -397,7 +399,7 @@ void Foam::RASModels::multiphaseKineticTheoryModel::correct()
     const volScalarField& rho = phase_.rho();
 
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
-    dimensionedScalar ThetaSmall("ThetaSmall", Theta_.dimensions(), 1e-6);
+    dimensionedScalar ThetaSmall("ThetaSmall", Theta_.dimensions(), 1e-15);
     dimensionedScalar ThetaSmallSqrt(sqrt(ThetaSmall));
 
     tmp<volScalarField> tda(phase_.d());
@@ -497,6 +499,26 @@ void Foam::RASModels::multiphaseKineticTheoryModel::correct()
           + fvOptions(alpha, rho, Theta_)
         );
 
+        // // Fix empty cell values
+        // label emptyCellSize = 0;
+        // forAll(alpha, i)
+        // {
+        //   emptyCellSize = alpha[i] <= cutoff_ ? emptyCellSize + 1 : emptyCellSize;
+        // }
+        // Info << "EmptyCellSize: " << emptyCellSize << endl;
+        // labelList emptyCells(emptyCellSize);
+        // label j = 0;
+        // forAll(alpha, i)
+        // {
+        //   if(alpha[i] <= cutoff_)
+        //   {
+        //     emptyCells[j] = i;
+        //     j++;
+        //   }
+        // }
+        // scalarField Theta0(emptyCellSize, 1e-15);
+        // ThetaEqn.setValues(emptyCells, Theta0);
+
         ThetaEqn.relax();
         fvOptions.constrain(ThetaEqn);
 
@@ -563,7 +585,6 @@ void Foam::RASModels::multiphaseKineticTheoryModel::correct()
 
     Theta_.max(0);
     Theta_.min(100);
-
     {
         // particle viscosity (Table 3.2, p.47)
         nut_ = viscosityModel_->nu(alpha, Theta_, gs0_, rho, da, e_);
@@ -574,29 +595,29 @@ void Foam::RASModels::multiphaseKineticTheoryModel::correct()
         lambda_ = (4.0/3.0)*sqr(alpha)*da*gs0_*(1 + e_)*ThetaSqrt/sqrtPi;
 
         // Frictional pressure
-        // volScalarField pf
-        // (
-        //     frictionalStressModel_->frictionalPressure
-        //     (
-        //         phase_,
-        //         alphaMinFriction_,
-        //         alphaMax_
-        //     )
-        // );
-        //
-        // nuFric_ = frictionalStressModel_->nu
-        // (
-        //     phase_,
-        //     alphaMinFriction_,
-        //     alphaMax_,
-        //     pf/rho,
-        //     D
-        // );
+        volScalarField pf
+        (
+            frictionalStressModel_->frictionalPressure
+            (
+                phase_,
+                alphaMinFriction_,
+                alphaMax_
+            )
+        );
+
+        nuFric_ = frictionalStressModel_->nu
+        (
+            phase_,
+            alphaMinFriction_,
+            alphaMax_,
+            pf/rho,
+            D
+        );
 
         // Limit viscosity and add frictional viscosity
         nut_.min(maxNut_);
-        // nuFric_ = min(nuFric_, maxNut_ - nut_);
-        // nut_ += nuFric_;
+        nuFric_ = min(nuFric_, maxNut_ - nut_);
+        nut_ += nuFric_;
     }
 
     if (debug)
