@@ -138,14 +138,10 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModels::Loth::tanh
   {
     Field<scalar> bFpF = bFs[i];
     const Field<scalar> gfbFpF = gfbFs[i];
-    // Info << "BFs: " << i << " : " << gfbFpF << endl;
-    // Info << "bFpFs: " << i << " : " << bFpF << endl;
     forAll(bFpF, j)
     {
       bFpF[j] = std::tanh(gfbFpF[j]);
     }
-    // Info << "After bFpFs: " << i << " : " << bFpF << endl;
-
   }
 
   return Foam::tmp<Foam::volScalarField>(new volScalarField ("ttanhF", tanhF));
@@ -174,9 +170,9 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModels::Loth::Cdfm
   volScalarField S4(pow(Smax, 4));
 
   return
-    (1 + 2*sqrS)*exp(-sqrS)/(sqrt(constant::mathematical::pi)*pow(Smax, 3))
-    + 2*sqrt(constant::mathematical::pi)/(3*Smax)
-    + (4*S4 + 4*sqrS - 1)*erf(Smax)/max(2*sqrS, SMALL);
+    (1 + 2*sqrS)*exp(-sqrS)/max((sqrt(constant::mathematical::pi)*pow(Smax, 3)), SMALL)
+    + 2*sqrt(constant::mathematical::pi)/max((3*Smax), SMALL)
+    + (4*S4 + 4*sqrS - 1)*erf(Smax)/max((2*S4), SMALL);
 }
 
 Foam::tmp<Foam::volScalarField> Foam::particleDragModels::Loth::CdfmRe
@@ -211,26 +207,29 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModels::Loth::CdRare
 Foam::tmp<Foam::volScalarField> Foam::particleDragModels::Loth::CM
 (const volScalarField& Ma) const
 {
+  volScalarField MaMax(max(Ma, SMALL));
   return
-      neg0(Ma - 1.5)*(1.65 + 0.65*tanh((4*Ma - 3.4)()))
-      + pos(Ma - 1.5)*(2.18 - 0.13*tanh((0.9*Ma - 2.7)()));
+      neg0(MaMax - 1.5)*(1.65 + 0.65*tanh((4*MaMax - 3.4)()))
+      + pos(MaMax - 1.5)*(2.18 - 0.13*tanh((0.9*MaMax - 2.7)()));
 }
 
 Foam::tmp<Foam::volScalarField> Foam::particleDragModels::Loth::GM
 (const volScalarField& Ma) const
 {
-  volScalarField Ma3(pow(max(Ma, SMALL), 3));
+  volScalarField MaMax(max(Ma, SMALL));
+  volScalarField Ma3(pow(MaMax, 3));
   return
-      neg0(Ma - 0.8)*(166*Ma3 + 3.29*sqr(Ma) - 10.9*Ma + 20)
-      + pos(Ma - 0.8)*(5 + 40/Ma3);
+      neg0(MaMax - 0.8)*(166*Ma3 + 3.29*sqr(MaMax) - 10.9*MaMax + 20)
+      + pos(MaMax - 0.8)*(5 + 40/Ma3);
 }
 
 Foam::tmp<Foam::volScalarField> Foam::particleDragModels::Loth::HM
 (const volScalarField& Ma) const
 {
+  volScalarField MaMax(max(Ma, SMALL));
   return
-      neg0(Ma - 1.0)*(0.0239*pow(Ma, 3) + 0.212*pow(Ma, 2) - 0.074*Ma + 1)
-      + pos(Ma - 1.0)*(0.93 + 1/(3.5 + pow(Ma, 5)));
+      neg0(MaMax - 1.0)*(0.0239*pow(MaMax, 3) + 0.212*pow(MaMax, 2) - 0.074*MaMax + 1)
+      + pos(MaMax - 1.0)*(0.93 + 1/(3.5 + pow(MaMax, 5)));
 }
 
 Foam::tmp<Foam::volScalarField> Foam::particleDragModels::Loth::CdComp
@@ -250,7 +249,8 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModels::Loth::CdRe() const
     volScalarField Re(pair_.Re());
     volScalarField S(sqrt(gamma_/2)*Ma);
     volScalarField Kn(sqrt(constant::mathematical::pi)*S/max(Re, SMALL));
-
+    Info << "min -> Ma: " << min(Ma).value() << " Re: " << min(Re).value() << " S: " << min(S).value() << " Kn: " << min(Kn).value() << endl;
+    Info << "max -> Ma: " << max(Ma).value() << " Re: " << max(Re).value() << " S: " << max(S).value() << " Kn: " << max(Kn).value() << endl;
 
     return
         neg0(Re - 45)*CdRare(Re, Ma, Kn, S)

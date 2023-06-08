@@ -22,7 +22,6 @@ inline void ImposeWall(volScalarField& psi, const volScalarField& alpha)
 inline void correctFlux(surfaceScalarField& flux, const volScalarField& propellant)
 {
   /***/
-  Info << "correcting Flux !!!" << endl;
     const fvMesh& mesh(propellant.mesh());
     const labelList& Own(mesh.owner());
     const labelList& Nei(mesh.neighbour());

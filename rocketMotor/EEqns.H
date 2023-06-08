@@ -43,7 +43,7 @@ for (int Ecorr=0; Ecorr<nEnergyCorrectors; Ecorr++)
         // Correct for Adiabatic Walls
         if (propellantIndex != -1)
         {
-        ImposeWall(phase.thermoRef().he(), phases[propellantIndex]);
+          ImposeWall(phase.thermoRef().he(), phases[propellantIndex]);
         }
     }
 

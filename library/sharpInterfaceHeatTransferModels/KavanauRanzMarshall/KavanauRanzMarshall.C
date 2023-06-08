@@ -74,7 +74,7 @@ Foam::sharpInterfaceHeatTransferModels::KavanauRanzMarshall::K(const scalar resi
     volScalarField Re(pair_.Re());
     volScalarField Pr(pair_.Pr());
     volScalarField Nu0(scalar(2) + 0.6*sqrt(Re)*cbrt(Pr));
-    volScalarField Nu(Nu0/(1 + 3.42*Nu0*Ma/max(Re*Pr, 1e-15)));
+    volScalarField Nu(Nu0/(1 + 3.42*Nu0*Ma/max(Re*Pr, SMALL)));
 
     return
         6.0

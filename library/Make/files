@@ -24,6 +24,7 @@ $(dragModel)/CliftGauvinInviscid/CliftGauvinInviscid.C
 $(dragModel)/Ergun/Ergun.C
 $(dragModel)/WenYu/WenYu.C
 $(dragModel)/Loth/Loth.C
+$(dragModel)/Henderson/Henderson.C
 
 HTModel = sharpInterfaceHeatTransferModels
 $(HTModel)/sharpInterfaceHeatTransferModel/sharpInterfaceHeatTransferModel.C

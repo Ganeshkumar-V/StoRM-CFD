@@ -176,75 +176,75 @@ int main(int argc, char *argv[])
         runTime.printExecutionTime(Info);
 
         // Check Mass and Energy Conservation
-        {
-          // 3 - Inlet , 4 - Outlet
-          const volScalarField& alphag(phases[0]);
-          const volScalarField& rhog(phases[0].thermo().rho());
-          const volScalarField& Tg(phases[0].thermo().T());
-          const scalarField& Cpg(phases[0].thermo().Cpv()().boundaryField()[3]);
-          const vectorField& Ugin(phases[0].U()().boundaryField()[3]);
-          const vectorField& Ugout(phases[0].U()().boundaryField()[4]);
-
-          const volScalarField& alphap(phases[1]);
-          const volScalarField& rhop(phases[1].thermo().rho());
-          const volScalarField& Tp(phases[1].thermo().T());
-          const scalarField& Cpp(phases[1].thermo().Cpv()().boundaryField()[3]);
-          const vectorField& Upin(phases[1].U()().boundaryField()[3]);
-          const vectorField& Upout(phases[1].U()().boundaryField()[4]);
-
-          const surfaceScalarField& magSf(mesh.magSf());
-
-          const Field<scalar> mgin
-          (
-            alphag.boundaryField()[3]*rhog.boundaryField()[3]*magSf.boundaryField()[3]*mag(Ugin)
-          );
-
-          const Field<scalar> mpin
-          (
-            alphap.boundaryField()[3]*rhop.boundaryField()[3]*magSf.boundaryField()[3]*mag(Upin)
-          );
-
-          const Field<scalar> mgout
-          (
-            alphag.boundaryField()[4]*rhog.boundaryField()[4]*magSf.boundaryField()[4]*mag(Ugout)
-          );
-
-          const Field<scalar> mpout
-          (
-            alphap.boundaryField()[4]*rhop.boundaryField()[4]*magSf.boundaryField()[4]*mag(Upout)
-          );
-          const Field<scalar> Egin
-
-          (
-            mgin*Cpg*Tg.boundaryField()[3] + 0.5*mgin*magSqr(Ugin)
-          );
-
-          const Field<scalar> Epin
-          (
-            mpin*Cpp*Tp.boundaryField()[3] + 0.5*mpin*magSqr(Upin)
-          );
-
-          const Field<scalar> Egout
-          (
-            mgout*Cpg*Tg.boundaryField()[4] + 0.5*mgout*magSqr(Ugout)
-          );
-
-          const Field<scalar> Epout
-          (
-            mpout*Cpp*Tp.boundaryField()[4] + 0.5*mpout*magSqr(Upout)
-          );
-
-          Info << "Mass Conservation Statistics: " << endl;
-          Info << "  mgin = " << sum(mgin) << "   mpin = " << sum(mpin) << "   massIn = " << sum(mgin + mpin) << endl;
-          Info << "  mgout = " << sum(mgout) << "   mpout = " << sum(mpout) << "   massOut = " << sum(mgout + mpout) << endl;
-          Info << "  Difference = " << sum(mgin + mpin) - sum(mgout + mpout) << endl;
-          Info << endl;
-          Info << "Energy Conservation Statistics: " << endl;
-          Info << "  Egin = " << sum(Egin) << "   Epin = " << sum(Epin) << "   EnergyIn = " << sum(Egin + Epin) << endl;
-          Info << "  Egout = " << sum(Egout) << "   Epout = " << sum(Epout) << "   EnergyOut = " << sum(Egout + Epout) << endl;
-          Info << "  Difference = " << sum(Egin + Epin) - sum(Egout + Epout) << endl;
-          Info << endl;
-        }
+        // {
+        //   // 3 - Inlet , 4 - Outlet
+        //   const volScalarField& alphag(phases[0]);
+        //   const volScalarField& rhog(phases[0].thermo().rho());
+        //   const volScalarField& Tg(phases[0].thermo().T());
+        //   const scalarField& Cpg(phases[0].thermo().Cpv()().boundaryField()[3]);
+        //   const vectorField& Ugin(phases[0].U()().boundaryField()[3]);
+        //   const vectorField& Ugout(phases[0].U()().boundaryField()[4]);
+        //
+        //   const volScalarField& alphap(phases[1]);
+        //   const volScalarField& rhop(phases[1].thermo().rho());
+        //   const volScalarField& Tp(phases[1].thermo().T());
+        //   const scalarField& Cpp(phases[1].thermo().Cpv()().boundaryField()[3]);
+        //   const vectorField& Upin(phases[1].U()().boundaryField()[3]);
+        //   const vectorField& Upout(phases[1].U()().boundaryField()[4]);
+        //
+        //   const surfaceScalarField& magSf(mesh.magSf());
+        //
+        //   const Field<scalar> mgin
+        //   (
+        //     alphag.boundaryField()[3]*rhog.boundaryField()[3]*magSf.boundaryField()[3]*mag(Ugin)
+        //   );
+        //
+        //   const Field<scalar> mpin
+        //   (
+        //     alphap.boundaryField()[3]*rhop.boundaryField()[3]*magSf.boundaryField()[3]*mag(Upin)
+        //   );
+        //
+        //   const Field<scalar> mgout
+        //   (
+        //     alphag.boundaryField()[4]*rhog.boundaryField()[4]*magSf.boundaryField()[4]*mag(Ugout)
+        //   );
+        //
+        //   const Field<scalar> mpout
+        //   (
+        //     alphap.boundaryField()[4]*rhop.boundaryField()[4]*magSf.boundaryField()[4]*mag(Upout)
+        //   );
+        //   const Field<scalar> Egin
+        //
+        //   (
+        //     mgin*Cpg*Tg.boundaryField()[3] + 0.5*mgin*magSqr(Ugin)
+        //   );
+        //
+        //   const Field<scalar> Epin
+        //   (
+        //     mpin*Cpp*Tp.boundaryField()[3] + 0.5*mpin*magSqr(Upin)
+        //   );
+        //
+        //   const Field<scalar> Egout
+        //   (
+        //     mgout*Cpg*Tg.boundaryField()[4] + 0.5*mgout*magSqr(Ugout)
+        //   );
+        //
+        //   const Field<scalar> Epout
+        //   (
+        //     mpout*Cpp*Tp.boundaryField()[4] + 0.5*mpout*magSqr(Upout)
+        //   );
+        //
+        //   Info << "Mass Conservation Statistics: " << endl;
+        //   Info << "  mgin = " << sum(mgin) << "   mpin = " << sum(mpin) << "   massIn = " << sum(mgin + mpin) << endl;
+        //   Info << "  mgout = " << sum(mgout) << "   mpout = " << sum(mpout) << "   massOut = " << sum(mgout + mpout) << endl;
+        //   Info << "  Difference = " << sum(mgin + mpin) - sum(mgout + mpout) << endl;
+        //   Info << endl;
+        //   Info << "Energy Conservation Statistics: " << endl;
+        //   Info << "  Egin = " << sum(Egin) << "   Epin = " << sum(Epin) << "   EnergyIn = " << sum(Egin + Epin) << endl;
+        //   Info << "  Egout = " << sum(Egout) << "   Epout = " << sum(Epout) << "   EnergyOut = " << sum(Egout + Epout) << endl;
+        //   Info << "  Difference = " << sum(Egin + Epin) - sum(Egout + Epout) << endl;
+        //   Info << endl;
+        // }
         // {
         //   // 3 - Inlet , 4 - Outlet
         //   const volScalarField& alphag(phases[0]);
