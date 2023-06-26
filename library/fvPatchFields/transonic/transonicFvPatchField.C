@@ -166,40 +166,46 @@ void Foam::transonicFvPatchScalarField::updateCoeffs()
 
     if (supersonic)
     {
-        // Check for normal shock possibility at the exit
-        const scalarField M(mag(Ug)/sqrt(gamma_*R_*Tg));
-        const scalarField P(*this);
-
-        scalar Sp(sum(this->patch().magSf()));
-        scalar Mavg = sum(M*this->patch().magSf())/Sp;
-        scalar Pavg = sum(P*this->patch().magSf())/Sp;
-
-        scalar Pp = (2*gamma_*sqr(Mavg) - (gamma_ - 1.0))*Pavg/(gamma_ + 1);
-        if (Pp > backPressure_)
+        if (this->size() > 0)   // To  stop other processors from calculation
         {
-            // Supersonic Flow - Normal Shock didn't form
-            this->valueFraction() = 0.0;
-        }
-        else
-        {
-            // Subsonic Flow - Normal Shock at the exit
-            this->valueFraction() = 1.0;
+            // Check for normal shock possibility at the exit
+            const scalarField M(mag(Ug)/sqrt(gamma_*R_*Tg));
+            const scalarField P(*this);
+
+            scalar Sp(sum(this->patch().magSf()));
+            scalar Mavg = sum(M*this->patch().magSf())/Sp;
+            scalar Pavg = sum(P*this->patch().magSf())/Sp;
+
+            scalar Pp = (2*gamma_*sqr(Mavg) - (gamma_ - 1.0))*Pavg/(gamma_ + 1);
+            if (Pp > backPressure_)
+            {
+                // Supersonic Flow - Normal Shock didn't form
+                this->valueFraction() = 0.0;
+            }
+            else
+            {
+                // Subsonic Flow - Normal Shock at the exit
+                this->valueFraction() = 1.0;
+            }
         }
     }
     else
     {
-        // Mach Number internalField
-        const scalarField Mc(mag(Ug.patchInternalField())/sqrt(gamma_*R_*Tg.patchInternalField()));
+        if (this->size() > 0) // To  stop other processors from calculation
+        {
+            // Mach Number internalField
+            const scalarField Mc(mag(Ug.patchInternalField())/sqrt(gamma_*R_*Tg.patchInternalField()));
 
-        if (max(Mc) > 1.0)
-        {
-            this->valueFraction() = 0.0;
+            if (max(Mc) > 1.0)
+            {
+                this->valueFraction() = 0.0;
+            }
+            else
+            {
+                this->valueFraction() = 1.0;
+            }
         }
-        else
-        {
-            this->valueFraction() = 1.0;
-        }
-      }
+    }
 
     mixedFvPatchScalarField::updateCoeffs();
 }

@@ -151,7 +151,7 @@ class particleFlowRateInletVelocityFvPatchVectorField
 public:
 
    //- Runtime type information
-   TypeName("flowRateInletVelocity");
+   TypeName("particleFlowRateInletVelocity");
 
 
    // Constructors

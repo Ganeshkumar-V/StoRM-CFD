@@ -93,12 +93,31 @@ Foam::interfaceTrackingModels::subCellularInterfaceMotion::subCellularInterfaceM
         dimensionedScalar("", dimVelocity/dimLength, 0.0)
       )
     ),
-    crb_("", dimVelocity, dict.getOrDefault<scalar>("rb", -1))
+    crb_("", dimVelocity, dict.getOrDefault<scalar>("rb", -1)),
+    pBufnB(Pstream::commsTypes::nonBlocking),
+    transfer_(0),
+    transferAlpha_(0, 0),
+    communicate_(0)
 {
   const phaseModel& phase = pair_.phase1();
   const volScalarField& alpha
         = phase.db().lookupObject<volScalarField>("alpha." + propellant_);
   this->findInterface(alpha);
+
+  forAll(alpha.mesh().boundary(), patchi)
+  {
+    if (isType<processorFvPatch>(alpha.mesh().boundary()[patchi]))
+    {
+      // Check for shared cell
+      const processorPolyPatch& pp
+          = refCast<const processorPolyPatch>(alpha.mesh().boundaryMesh()[patchi]);
+      if (pp.owner())
+      {
+          transferAlpha_ = alpha.boundaryField()[patchi];
+      }
+    }
+  }
+
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -286,7 +305,6 @@ Foam::label Foam::interfaceTrackingModels::subCellularInterfaceMotion::findNeigh
   return -1;
 }
 
-
 void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
 (
   volScalarField& alpha,
@@ -312,13 +330,29 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
   dmdt_ = dimensionedScalar(dmdt_.dimensions(), 0.0);
   rb_ = dimensionedScalar(rb_.dimensions(), 0.0);
 
+  // Initialize to allow transfer/communicate_ if waranted
+  transfer_ = 0;
+  communicate_ = 0;
+  forAll(mesh.boundary(),patchi)
+  {
+    if (isType<processorFvPatch>(mesh.boundary()[patchi]))
+    {
+      const processorPolyPatch& pp
+          = refCast<const processorPolyPatch>(mesh.boundaryMesh()[patchi]);
+      if (pp.owner())
+      {
+        transferAlpha_ = alpha0.boundaryField()[patchi].patchNeighbourField();
+      }
+    }
+  }
+
   // Internal Cells
   forAll(Own, i)
   {
     // case:1 Interface is present in the Neighbour Cell
     if
     (
-      (alpha0[Own[i]] == Zero && alpha0[Nei[i]] > Zero) && 
+      (alpha0[Own[i]] == Zero && alpha0[Nei[i]] > Zero) &&
       (Nei[i] == Own[i] + 1)
     )
     {
@@ -326,31 +360,197 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
 
       As_[Nei[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
       rb_[Nei[i]] = rb(p[Nei[i]]);  // burning Rate
-      dmdt_[Nei[i]] = (1 - alpha[Nei[i]])*rb_[Nei[i]]*As_[Nei[i]];
+      dmdt_[Nei[i]] = (1 - alpha0[Nei[i]])*rb_[Nei[i]]*As_[Nei[i]];
 
       As_[Own[i]] = As_[Nei[i]];
       rb_[Own[i]] = rb_[Nei[i]];
-      dmdt_[Own[i]] = alpha[Nei[i]]*rb_[Nei[i]]*As_[Nei[i]];
+      dmdt_[Own[i]] = alpha0[Nei[i]]*rb_[Nei[i]]*As_[Nei[i]];
 
-      alpha[Nei[i]] = alpha0[Nei[i]] - rb_[Nei[i]]*As_[Nei[i]]*dt;
-      if (alpha[Nei[i]] < 0)
+      scalar newalpha = alpha0[Nei[i]] - rb_[Nei[i]]*As_[Nei[i]]*dt;
+      if (newalpha < 0)
       {
-          scalar Vr = -alpha[Nei[i]]*V[Nei[i]];
-          alpha[Nei[i]] = SMALL;
-
-          // Find Neighbour cell
+          // Find Neighbour of Neighbour cell
           label NNei = findNeighbour(alpha0, Nei[i]);
-          alpha[NNei] = alpha0[NNei] - Vr/V[NNei];
-          if (alpha[NNei] < 0)
+
+          if (NNei != -1)
           {
-              FatalErrorInFunction
-                << "Regression is very fast!\n"
-                << "Hint: Reduce time step."
-                << exit(FatalError);
+                scalar Vr = -newalpha*V[Nei[i]];
+                alpha[Nei[i]] = SMALL;
+
+                alpha[NNei] = alpha0[NNei] - Vr/V[NNei];
+                if (alpha[NNei] < 0)
+                {
+                    FatalErrorInFunction
+                      << "Regression is very fast!\n"
+                      << "Hint: Reduce time step."
+                      << exit(FatalError);
+                }
           }
+          else
+          {
+               // check for processor shared neighbour cells and regress
+               forAll(mesh.boundary(),patchi)
+               {
+                 if (isType<processorFvPatch>(mesh.boundary()[patchi]))
+                 {
+                   const processorPolyPatch& pp
+                       = refCast<const processorPolyPatch>(mesh.boundaryMesh()[patchi]);
+                   const scalarField& nf(alpha0.boundaryField()[patchi].patchNeighbourField());
+
+                   transferAlpha_ = alpha.boundaryField()[patchi].patchNeighbourField();
+
+                   if (pp.owner())
+                   {
+                     const labelList& fC(mesh.boundary()[patchi].faceCells());
+                     forAll(fC, celli)
+                     {
+                       if ((fC[celli] == Nei[i]) && (nf[celli] == 1 - SMALL))
+                       {
+                         transfer_ = 1.0; // To allow processor exchange information
+                         // Interface Transfer
+                         scalar Vr = -newalpha*V[Nei[i]];
+                         alpha[Nei[i]] = SMALL;
+
+                         transferAlpha_[celli] = nf[celli] - Vr/V[Nei[i]];
+                         Pout << "transferCell: " << transferAlpha_ << endl;
+                         // This should be V[Nf[celli]]! But how to get neighbouring cell's volume?
+                       }
+                     }
+                   }
+                 }
+               }
+          }
+      }
+      else
+      {
+          alpha[Nei[i]] = newalpha;
       }
     }
   }
+
+  // Check the need for transfer
+  reduce(transfer_, sumOp<scalar>());
+
+  if (transfer_ > 0)
+  {
+    // Send and Receive Information about interface transfer
+    forAll(mesh.boundary(), patchi)
+    {
+      // check for processor patch
+      if (isType<processorFvPatch>(mesh.boundary()[patchi]))
+      {
+        const processorPolyPatch& patch
+            = refCast<const processorPolyPatch>(mesh.boundaryMesh()[patchi]);
+
+        if (patch.owner())
+        {
+          // Send alpha Information
+          UOPstream sendToNeighbour(patch.neighbProcNo(), pBufnB);
+          sendToNeighbour << transferAlpha_;
+        }
+      }
+    }
+    pBufnB.finishedSends();
+
+    forAll(mesh.boundary(), patchi)
+    {
+      // check for processor patch
+      if (isType<processorFvPatch>(mesh.boundary()[patchi]))
+      {
+        const processorPolyPatch& patch
+            = refCast<const processorPolyPatch>(mesh.boundaryMesh()[patchi]);
+
+        if (patch.neighbour())
+        {
+          // Receive alpha Information
+          scalarField transferCellReceive(transferAlpha_.size(), 0);
+          UIPstream recvFromOwner(patch.neighbProcNo(), pBufnB);
+          recvFromOwner >> transferCellReceive;
+          const labelList& faceCells(patch.faceCells());
+          forAll(faceCells, i)
+          {
+            alpha[faceCells[i]] = transferCellReceive[i];
+          }
+        }
+      }
+    }
+  }
+
+
+  if ((alpha0[0] != 1 - SMALL) && (alpha0[0] != SMALL)) communicate_ = 1.0;
+  // check the need for communiation of sources
+  reduce(communicate_, sumOp<scalar>());
+
+  // Perform calculation to communicate Sources back to owner
+  if (communicate_ > 0)
+  {
+    scalar dmdtComm = 0;
+    scalar AsComm = 0;
+    scalar rbComm = 0;
+
+    if ((alpha0[0] != 1 - SMALL) && (alpha0[0] != SMALL))
+    {
+      interface_[0] = 1;
+      As_[0] = Sf[0]/V[0];
+      rb_[0] = rb(p[0]);
+      dmdt_[0] = (1 - alpha0[0])*rb_[0]*As_[0];
+
+      dmdtComm = alpha0[0]*rb_[0]*As_[0];
+      AsComm = As_[0];
+      rbComm = rb_[0];
+
+      alpha[0] = alpha0[0] - rb_[0]*As_[0]*dt;
+      if (alpha[0] < 0)
+      {
+        alpha[1] = alpha0[1] + alpha[0]*V[0]/V[1];
+        alpha[0] = SMALL;
+      }
+    }
+
+    // Send Data
+    forAll(mesh.boundary(), patchi)
+    {
+      // check for processor patch
+      if (isType<processorFvPatch>(mesh.boundary()[patchi]))
+      {
+        const processorPolyPatch& patch
+            = refCast<const processorPolyPatch>(mesh.boundaryMesh()[patchi]);
+
+        if (patch.neighbour())
+        {
+          // Send alpha Information
+          UOPstream sendToOwner(patch.neighbProcNo(), pBufnB);
+          sendToOwner << dmdtComm;
+          sendToOwner << AsComm;
+          sendToOwner << rbComm;
+        }
+      }
+    }
+    pBufnB.finishedSends();
+
+    // Receive Data
+    forAll(mesh.boundary(), patchi)
+    {
+      if (isType<processorFvPatch>(mesh.boundary()[patchi]))
+      {
+        const processorPolyPatch& patch
+            = refCast<const processorPolyPatch>(mesh.boundaryMesh()[patchi]);
+
+        if (patch.owner())
+        {
+          // Receive from Neigbour
+          UIPstream recvFromNeigh(patch.neighbProcNo(), pBufnB);
+          recvFromNeigh >> dmdt_[dmdt_.size() - 1];
+          recvFromNeigh >> As_[dmdt_.size() - 1];
+          recvFromNeigh >> rb_[dmdt_.size() - 1];
+        }
+      }
+    }
+  }
+
+  dmdt_.correctBoundaryConditions();
+  As_.correctBoundaryConditions();
+  rb_.correctBoundaryConditions();
 }
 
 void Foam::interfaceTrackingModels::subCellularInterfaceMotion::findInterface

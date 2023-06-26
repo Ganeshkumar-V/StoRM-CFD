@@ -74,6 +74,17 @@ public:
     volScalarField dmdt_;
 
     dimensionedScalar crb_;
+
+    // Parallel comms
+
+    // To transfer interface from owner to neighbour processor
+    PstreamBuffers pBufnB;
+    scalar transfer_;
+    scalarField transferAlpha_;
+
+    // To communicate sources from neighbour to owner processor
+    scalar communicate_;
+
     // Constructors
 
         //- Construct from components
