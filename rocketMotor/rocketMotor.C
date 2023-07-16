@@ -44,6 +44,7 @@ Description
 #include "fvcSmooth.H"
 #include "phasePair.H"
 #include "GeometricField.H"
+#include "processorFvPatch.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
