@@ -6,6 +6,8 @@ fvPatchFields/invertField/invertFieldFvPatchFields.C
 fvPatchFields/transonic/transonicFvPatchField.C
 fvPatchFields/totalTimeVaryingPressure/totalTimeVaryingPressureFvPatchScalarField.C
 fvPatchFields/pressureOutletNSCBC/pressureOutletNSCBCFvPatchFields.C
+fvPatchFields/waveTransmissiveVelocity/waveTransmissiveVelocityFvPatchFields.C
+fvPatchFields/transonicLocal/transonicLocalFvPatchField.C
 phaseModel/phaseModel/phaseModels.C
 
 multiphaseTurbulence = multiphaseCompressibleTurbulenceModels
