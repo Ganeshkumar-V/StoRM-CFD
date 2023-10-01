@@ -7,7 +7,6 @@ fvPatchFields/transonic/transonicFvPatchField.C
 fvPatchFields/totalTimeVaryingPressure/totalTimeVaryingPressureFvPatchScalarField.C
 fvPatchFields/pressureOutletNSCBC/pressureOutletNSCBCFvPatchFields.C
 fvPatchFields/waveTransmissiveVelocity/waveTransmissiveVelocityFvPatchFields.C
-fvPatchFields/waveTransmissiveShock/waveTransmissiveShockFvPatchFields.C
 fvPatchFields/transonicLocal/transonicLocalFvPatchField.C
 phaseModel/phaseModel/phaseModels.C
 
@@ -20,6 +19,7 @@ $(multiphaseTurbulence)/BoundaryConditions/JohnsonJacksonSlip/JohnsonJacksonSlip
 iTModel = interfaceTrackingModels
 $(iTModel)/interfaceTrackingModel/interfaceTrackingModel.C
 $(iTModel)/subCellularInterfaceMotion/subCellularInterfaceMotion.C
+$(iTModel)/controlledInterfaceMotion/controlledInterfaceMotion.C
 $(iTModel)/burningRate/burningRate.C
 $(iTModel)/burningRateDy/burningRateDy.C
 

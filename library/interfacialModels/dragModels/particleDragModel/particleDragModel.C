@@ -61,7 +61,8 @@ Foam::particleDragModel::particleDragModel
             registerObject
         )
     ),
-    pair_(pair)
+    pair_(pair),
+    factor_("", dimless, 1.0)
 {}
 
 
@@ -84,7 +85,8 @@ Foam::particleDragModel::particleDragModel
             registerObject
         )
     ),
-    pair_(pair)
+    pair_(pair),
+    factor_("", dimless, dict.getOrDefault<scalar>("factor", 1.0))
 {}
 
 
@@ -147,7 +149,7 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModel::Ki() const
 
 Foam::tmp<Foam::volScalarField> Foam::particleDragModel::K() const
 {
-    return max(pair_.dispersed(), pair_.dispersed().residualAlpha())*Ki();
+    return factor_*max(pair_.dispersed(), pair_.dispersed().residualAlpha())*Ki();
 }
 
 

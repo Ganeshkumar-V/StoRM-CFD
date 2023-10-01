@@ -312,12 +312,13 @@ void Foam::waveTransmissiveShockFvPatchField<Type>::updateCoeffs()
       {
           // Find downstream pressure of the normal Shock
           scalar Pp = (2*gamma_*sqr(M[i]) - (gamma_ - 1.0))*P[i]/(gamma_ + 1);
-
-          if (Pp <= mag(this->fieldInf()[i]))
+          const Field<Type>& fieldInfty(this->fieldInf());
+          Field<Type>& fieldRefValue(this->refValue());
+          if (Pp <= mag(fieldInfty[i]))
           {
               Pout << "Normal Shock Possibility at " << i << " P = " << P[i] << endl;
               this->valueFraction()[i] = 1.0;
-              this->refValue()[i] = this->fieldInf()[i];
+              fieldRefValue[i] = fieldInfty[i];
           }
       }
   }

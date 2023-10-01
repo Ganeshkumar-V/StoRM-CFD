@@ -34,6 +34,7 @@ License
 #include "PropellantInterfacePhaseSystem.H"
 #include "InterphaseHeatTransferPhaseSystem.H"
 #include "PropellantCombustionPhaseSystem.H"
+#include "ControlledPropellantCombustionPhaseSystem.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -92,6 +93,24 @@ namespace Foam
         interfaceCombustionMultiphaseSystem,
         dictionary,
         interfaceCombustionMultiphaseSystem
+    );
+
+    typedef
+        ControlledPropellantCombustionPhaseSystem
+        <
+            InterphaseHeatTransferPhaseSystem
+            <
+                MomentumEnergyTransferPhaseSystem<multiPhaseSystem>
+            >
+        >
+        controlledInterfaceCombustionMultiphaseSystem;
+
+    addNamedToRunTimeSelectionTable
+    (
+        multiPhaseSystem,
+        controlledInterfaceCombustionMultiphaseSystem,
+        dictionary,
+        controlledInterfaceCombustionMultiphaseSystem
     );
 
 }

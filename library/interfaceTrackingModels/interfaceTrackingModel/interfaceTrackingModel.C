@@ -89,6 +89,15 @@ Foam::interfaceTrackingModel::interface() const
 {
   return nullptr;
 }
+
+void Foam::interfaceTrackingModel::regress
+(
+  volScalarField& alpha,
+  const volScalarField& alphaOld,
+  volScalarField& regressionAlpha,
+  const volScalarField& regressionAlphaOld
+)
+{}
 // * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
 
 Foam::autoPtr<Foam::interfaceTrackingModel>

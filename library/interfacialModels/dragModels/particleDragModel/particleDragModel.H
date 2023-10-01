@@ -64,6 +64,9 @@ protected:
         //- Phase pair
         const phasePair& pair_;
 
+        //- Drag Factor
+        dimensionedScalar factor_;
+
 public:
 
     //- Runtime type information

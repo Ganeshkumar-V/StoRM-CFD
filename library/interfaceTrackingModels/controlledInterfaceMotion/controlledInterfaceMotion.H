@@ -6,7 +6,6 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2018 OpenFOAM Foundation
-    Copyright (C) 2020 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,82 +24,71 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::interfaceTrackingModel
+    Foam::interfaceTrackingModels::controlledInterfaceMotion
 
 Description
 
 SourceFiles
-    interfaceTrackingModel.C
+    controlledInterfaceMotion.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef interfaceTrackingModel_H
-#define interfaceTrackingModel_H
+#ifndef controlledInterfaceMotion_H
+#define controlledInterfaceMotion_H
+
+#include "interfaceTrackingModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#include "volFields.H"
-#include "dictionary.H"
-#include "runTimeSelectionTables.H"
-#include "PtrListDictionary.H"
-#include "phaseModel.H"
 
 namespace Foam
 {
 
-// Forward Declarations
 class phasePair;
 
+namespace interfaceTrackingModels
+{
+
 /*---------------------------------------------------------------------------*\
-                        Class interfaceTrackingModel Declaration
+                          Class controlledInterfaceMotion Declaration
 \*---------------------------------------------------------------------------*/
 
-class interfaceTrackingModel
+class controlledInterfaceMotion
+:
+    public interfaceTrackingModel
 {
-protected:
-
-    // Protected Data
-
-        //- Phase pair
-        const phasePair& pair_;
-
-
-
 public:
 
     //- Runtime type information
-    TypeName("interfaceTrackingModel");
+    TypeName("controlledInterfaceMotion");
 
-    typedef PtrListDictionary<phaseModel> phaseModelList;
+    scalar n;
+    scalar f;
+    dimensionedScalar a;
 
-    //- Propellant phase
-    word propellant_;
+    volScalarField interface_;
 
-    // Declare runtime construction
+    volScalarField rb_;
 
-        declareRunTimeSelectionTable
-        (
-            autoPtr,
-            interfaceTrackingModel,
-            dictionary,
-            (
-                const dictionary& dict,
-                const phasePair& pair
-            ),
-            (dict, pair)
-        );
+    volScalarField As_;
 
+    volScalarField dmdt_;
 
-    // Static Data Members
+    dimensionedScalar crb_;
 
-        //- Mass transfer rate dimensions
-        static const dimensionSet dimDmdt;
+    // Parallel comms
 
+    // To transfer interface from owner to neighbour processor
+    PstreamBuffers pBufnB;
+    scalar transfer_;
+    scalarField transferAlpha_;
+
+    // To communicate sources from neighbour to owner processor
+    scalar communicate_;
 
     // Constructors
 
-        //- Construct from a dictionary and a phase pair
-        interfaceTrackingModel
+        //- Construct from components
+        controlledInterfaceMotion
         (
             const dictionary& dict,
             const phasePair& pair
@@ -108,21 +96,13 @@ public:
 
 
     //- Destructor
-    virtual ~interfaceTrackingModel() = default;
-
-
-    // Selectors
-
-        static autoPtr<interfaceTrackingModel> New
-        (
-            const dictionary& dict,
-            const phasePair& pair
-        );
-
+    virtual ~controlledInterfaceMotion();
 
     // Member Functions
-    virtual void correct() = 0;
-    virtual void regress(volScalarField& alpha, const volScalarField& alphaOld) = 0;
+    virtual void correct();
+
+    virtual void regress(volScalarField& alpha, const volScalarField& alphaOld);
+
     virtual void regress
     (
       volScalarField& alpha,
@@ -131,30 +111,32 @@ public:
       const volScalarField& regressionAlphaOld
     );
 
-    virtual void findInterface(const volScalarField& alpha) = 0;
+    virtual void findInterface(const volScalarField& alpha);
+
+    label findNeighbour(const volScalarField& alpha, scalar NEI);
+
+    scalar rb(scalar P);
 
     //- The burning rate
-    virtual tmp<volScalarField> rb() const = 0;
+    virtual tmp<volScalarField> rb() const;
 
-    //- Interface Area/Volume
-    virtual tmp<volScalarField> As() const = 0;
+    //- Interface Area / Volume
+    virtual tmp<volScalarField> As() const;
 
-    //- Interface Area vector
+    //- Interface normal
     virtual tmp<volVectorField> nHat() const;
-
-    //- Propellant Density
-    virtual tmp<volScalarField> rhop() const;
 
     //- Mass Transfer Rate
     virtual tmp<volScalarField> dmdt() const;
 
-    //- Interface Cell Field
+    //- Return Interface
     virtual tmp<volScalarField> interface() const;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace interfaceTrackingModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
