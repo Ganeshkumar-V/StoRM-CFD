@@ -86,7 +86,7 @@ Foam::particleDragModel::particleDragModel
         )
     ),
     pair_(pair),
-    factor_("", dimless, dict.getOrDefault<scalar>("factor", 1.0))
+    factor_("", dimless, dict.get<scalar>("factor"))
 {}
 
 
@@ -140,7 +140,7 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModel::Ki() const
       muc = tmc();
     }
     return
-        0.75
+        0.75*factor_
        *CdRe()
        *muc
        /sqr(pair_.dispersed().d());
@@ -149,7 +149,7 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModel::Ki() const
 
 Foam::tmp<Foam::volScalarField> Foam::particleDragModel::K() const
 {
-    return factor_*max(pair_.dispersed(), pair_.dispersed().residualAlpha())*Ki();
+    return max(pair_.dispersed(), pair_.dispersed().residualAlpha())*Ki();
 }
 
 

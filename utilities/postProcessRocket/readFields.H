@@ -83,10 +83,10 @@ surfaceScalarField phiGas
       "phi.gas",
       runTime.timeName(),
       mesh,
-      IOobject::MUST_READ,
+      IOobject::READ_IF_PRESENT,
       IOobject::NO_WRITE
     ),
-    mesh
+    fvc::flux(Ugas)
 );
 
 surfaceScalarField phiParticles
@@ -96,8 +96,8 @@ surfaceScalarField phiParticles
       "phi.particles",
       runTime.timeName(),
       mesh,
-      IOobject::MUST_READ,
+      IOobject::READ_IF_PRESENT,
       IOobject::NO_WRITE
     ),
-    mesh
+    fvc::flux(Uparticles)
 );
