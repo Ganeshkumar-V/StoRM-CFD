@@ -98,6 +98,12 @@ void Foam::interfaceTrackingModels::entrainedInterfaceMotion::regress
 
 }
 
+void Foam::interfaceTrackingModels::entrainedInterfaceMotion::store()
+{
+    // store old time step alpha
+    alphaOld_ = alpha_;
+}
+
 Foam::tmp<Foam::volScalarField>
 Foam::interfaceTrackingModels::entrainedInterfaceMotion::rb() const
 {

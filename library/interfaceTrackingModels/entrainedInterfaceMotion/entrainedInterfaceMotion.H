@@ -97,6 +97,8 @@ public:
     // These virtual functions are not used in this tracking models
     virtual void regress(volScalarField& alpha, const volScalarField& alphaOld);
     virtual void findInterface(const volScalarField& alpha){}
+
+    virtual void store();
 };
 
 

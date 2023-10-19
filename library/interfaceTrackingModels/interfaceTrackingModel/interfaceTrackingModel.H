@@ -133,6 +133,8 @@ public:
 
     virtual void findInterface(const volScalarField& alpha) = 0;
 
+    virtual void store(){}
+
     //- The burning rate
     virtual tmp<volScalarField> rb() const = 0;
 

@@ -349,6 +349,7 @@ Foam::tmp<Foam::volScalarField> Foam::Surface::regressInterface
     const labelList& flame
 )
 {
+
     // dmdt Field
     tmp<volScalarField> tdmdt
     (
@@ -447,4 +448,10 @@ Foam::tmp<Foam::volScalarField> Foam::Surface::regressInterface
     }
 
     return tdmdt;
+}
+
+void Foam::Surface::store()
+{
+    // store old time step alpha
+    alphaOld_ = alpha_;
 }
