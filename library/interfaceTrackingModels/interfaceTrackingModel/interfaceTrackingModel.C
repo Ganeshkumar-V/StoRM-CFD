@@ -98,6 +98,20 @@ void Foam::interfaceTrackingModel::regress
   const volScalarField& regressionAlphaOld
 )
 {}
+
+void Foam::interfaceTrackingModel::regress
+(
+  volScalarField& alpha,
+  const volScalarField& alphaOld
+)
+{}
+
+void Foam::interfaceTrackingModel::regress
+(
+    const scalar fp
+)
+{}
+
 // * * * * * * * * * * * * * * * * Selector  * * * * * * * * * * * * * * * * //
 
 Foam::autoPtr<Foam::interfaceTrackingModel>

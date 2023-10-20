@@ -102,7 +102,7 @@ Foam::EntrainedPropellantCombustionPhaseSystem<BasePhaseSystem>::EntrainedPropel
       )
     ),
     rhoPropellant("rhoprop", dimDensity, this->template get<scalar>("propellantRho")),
-    MR_("Mass Retained", dimless, 0.0),
+    MR_("Mass Retained", dimless, this->template get<scalar>("Retained")),
     alphaOld
     (
       volScalarField
@@ -266,7 +266,7 @@ Foam::EntrainedPropellantCombustionPhaseSystem<BasePhaseSystem>::dmdts() const
         const phasePair& pair = this->phasePairs_[rDmdtIter.key()];
         const volScalarField& rDmdt = *rDmdtIter();
 
-        const factors mtf(eta.massTransfer());
+        const Entrainment::factors mtf(eta.massTransfer());
         const scalar pcoeff = mtf.particles;
         const scalar gcoeff = (mtf.H2 + mtf.H2O);
 
@@ -321,7 +321,7 @@ Foam::EntrainedPropellantCombustionPhaseSystem<BasePhaseSystem>::massTransfer() 
         const volScalarField dmdt(this->rDmdt(pair));
         const PtrList<volScalarField>& Yi = phase.Y();
 
-        const factors mtf(eta.massTransfer());
+        const Entrainment::factors mtf(eta.massTransfer());
         const scalar fH2 = mtf.H2;
         const scalar fH2O = mtf.H2O;
 
@@ -357,7 +357,7 @@ Foam::EntrainedPropellantCombustionPhaseSystem<BasePhaseSystem>::heatTransfer() 
     const phasePair& pair = this->phasePairs_[rDmdtIter.key()];
     const volScalarField& rDmdt = *rDmdtIter();
 
-    const factors mtf(eta.massTransfer());
+    const Entrainment::factors mtf(eta.massTransfer());
     const scalar pcoeff = mtf.particles;
     const scalar gcoeff = (mtf.H2 + mtf.H2O);
 
@@ -409,7 +409,7 @@ Foam::EntrainedPropellantCombustionPhaseSystem<BasePhaseSystem>::momentumTransfe
           const phasePair& pair = this->phasePairs_[rDmdtIter.key()];
           const volScalarField& rDmdt = *rDmdtIter();
 
-          const factors mtf(eta.massTransfer());
+          const Entrainment::factors mtf(eta.massTransfer());
           const scalar pcoeff = mtf.particles;
           const scalar gcoeff = (mtf.H2 + mtf.H2O);
 
@@ -437,16 +437,16 @@ void Foam::EntrainedPropellantCombustionPhaseSystem<BasePhaseSystem>::solve()
   // Regress Propellant surface (Manipulate propellant volume fraction)
   if (regress_)
   {
-    forAllIter
-    (
-      interfaceTrackingModelTable,
-      interfaceTrackingModels_,
-      interfaceTrackingModelIter
-    )
-    {
-      interfaceTrackingModelIter()->regress(regressionAlpha, alphaOld);
-
-    }
+      forAllIter
+      (
+          interfaceTrackingModelTable,
+          interfaceTrackingModels_,
+          interfaceTrackingModelIter
+      )
+      {
+          const Entrainment::factors mtf(eta.massTransfer());
+          interfaceTrackingModelIter()->regress(mtf.particles);
+      }
   }
 
   // Solve other phase volume fraction equations
@@ -478,7 +478,7 @@ void Foam::EntrainedPropellantCombustionPhaseSystem<BasePhaseSystem>::correct()
     )
     {
         *rDmdt_[interfaceTrackingModelIter.key()]
-        = interfaceTrackingModelIter()->dmdt()*rhoPropellant;
+        = interfaceTrackingModelIter()->dmdt()()*rhoPropellant;
     }
 
     // calculate velocity of the gas and particle source
@@ -520,11 +520,10 @@ void Foam::EntrainedPropellantCombustionPhaseSystem<BasePhaseSystem>::calculateV
     {
       const tmp<volScalarField> tAs = interfaceTrackingModelIter()->As();
       const tmp<volScalarField> trb = interfaceTrackingModelIter()->rb();
-      const tmp<volScalarField> tdmdt = interfaceTrackingModelIter()->dmdt();
+      const volScalarField& dmdt = *rDmdt_[interfaceTrackingModelIter.key()];
 
       const volScalarField& As(tAs());
       const volScalarField& rb(trb());
-      const volScalarField& dmdt(tdmdt());
 
       eta.gasVelocity
       (

@@ -122,7 +122,8 @@ public:
 
     // Member Functions
     virtual void correct() = 0;
-    virtual void regress(volScalarField& alpha, const volScalarField& alphaOld) = 0;
+    virtual void regress(volScalarField& alpha, const volScalarField& alphaOld);
+    virtual void regress(const scalar fp);
     virtual void regress
     (
       volScalarField& alpha,

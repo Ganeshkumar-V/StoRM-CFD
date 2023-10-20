@@ -31,8 +31,6 @@ License
 #include "phaseSystem.H"
 #include "addToRunTimeSelectionTable.H"
 #include "processorFvPatch.H"
-#include "ChemicalEfficiency.H"
-#include "EntrainedSystem.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -94,8 +92,7 @@ void Foam::interfaceTrackingModels::entrainedInterfaceMotion::correct()
 
 void Foam::interfaceTrackingModels::entrainedInterfaceMotion::regress
 (
-    volScalarField& alpha,
-    const volScalarField& alphaOld
+    const scalar fp
 )
 {
     // Pressure for burning Rate
@@ -104,11 +101,8 @@ void Foam::interfaceTrackingModels::entrainedInterfaceMotion::regress
     // 1. Regress flame surface and get dmdt
     tmp<volScalarField> dmdtf = flame_.regressInterface(p, bed_.iNeighbours());
 
-    const EntrainedSystem& eta(pair_.phase1().db().lookupObject<EntrainedSystem>("EntrainedSystem"));
-    const factors mtf(eta.massTransfer());
-
     // 2. Regress bed surface based on flame surface dmdt
-    dmdt_ = bed_.regressInterface(p, dmdtf(), flame_.iNeighbours(), mtf.particles, MR);
+    dmdt_ = bed_.regressInterface(p, dmdtf(), flame_.iNeighbours(), fp, MR);
 
 }
 

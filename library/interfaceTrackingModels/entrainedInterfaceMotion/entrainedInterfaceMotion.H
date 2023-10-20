@@ -104,7 +104,7 @@ public:
     virtual tmp<volScalarField> dmdt() const;
 
     // These virtual functions are not used in this tracking models
-    virtual void regress(volScalarField& alpha, const volScalarField& alphaOld);
+    virtual void regress(const scalar fp);
     virtual void findInterface(const volScalarField& alpha){}
 
     virtual void store();

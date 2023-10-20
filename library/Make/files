@@ -41,6 +41,7 @@ $(HTModel)/RanzMarshall/RanzMarshall.C
 $(HTModel)/DrakeInviscid/DrakeInviscid.C
 $(HTModel)/KavanauRanzMarshall/KavanauRanzMarshall.C
 
+PhaseSystems/EntrainedPropellantCombustionPhaseSystem/EntrainedSystem.C
 multiphaseSystem/multiPhaseSystem.C
 multiphaseSystem/multiPhaseSystemNew.C
 multiphaseSystem/multiPhaseSystems.C

@@ -63,7 +63,7 @@ Foam::Surface::Surface
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
           ),
           mesh,
           dimensionedScalar("", dimless, 0)
@@ -81,7 +81,7 @@ Foam::Surface::Surface
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
           ),
           mesh,
           dimensionedScalar("", dimArea/dimVolume, 0)
@@ -97,7 +97,7 @@ Foam::Surface::Surface
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
           ),
           mesh,
           dimensionedVector("", dimless, vector(0, 0, 0))
@@ -113,7 +113,7 @@ Foam::Surface::Surface
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::NO_WRITE
+            IOobject::AUTO_WRITE
           ),
           mesh,
           dimensionedScalar("", dimVelocity, 0)
@@ -255,7 +255,7 @@ Foam::tmp<Foam::volScalarField> Foam::Surface::regressInterface
         (
             IOobject("dmdt", p.mesh()),
             p.mesh(),
-            dimensionedScalar("", dimMass/dimVolume, 0.0)
+            dimensionedScalar("", dimless/dimTime, 0.0)
         )
     );
     volScalarField& dmdt_(tdmdt.ref());
@@ -359,7 +359,7 @@ Foam::tmp<Foam::volScalarField> Foam::Surface::regressInterface
         (
             IOobject("dmdt", p.mesh()),
             p.mesh(),
-            dimensionedScalar("", dimMass/dimVolume, 0.0)
+            dimensionedScalar("", dimless/dimTime, 0.0)
         )
     );
     volScalarField& dmdt_(tdmdt.ref());
