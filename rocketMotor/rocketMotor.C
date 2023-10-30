@@ -77,6 +77,8 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
+    // Info << "Propellant Volume: "
+    //       << sum(fluid.phases()[2].internalField()*mesh.V())*10000 << endl;
 
     // Correcting Phase Volume Fractions
     forAll(fluid.phases(), phasei)

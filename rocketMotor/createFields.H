@@ -140,3 +140,21 @@ volScalarField gammag
     ),
     phases[0].thermo().gamma()
 );
+
+volScalarField rhoPropellant
+(
+    IOobject
+    (
+        "rho",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    phases[0].thermo().rho()
+);
+
+if (phases.size() > 2)
+{
+    rhoPropellant = phases[2].thermo().rho();
+}

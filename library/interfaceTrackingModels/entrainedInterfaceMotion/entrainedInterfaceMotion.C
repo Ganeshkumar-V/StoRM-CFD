@@ -108,6 +108,17 @@ void Foam::interfaceTrackingModels::entrainedInterfaceMotion::regress
     // 3. Update propellant alpha
     alpha = bed_.alpha();
 
+    // Info << "Flame Volume: "
+    //   << sum(flame_.alpha().internalField()*flame_.alpha().mesh().V())*10000 << endl;
+    // Info << "bed Volume: "
+    //   << sum(bed_.alpha().internalField()*bed_.alpha().mesh().V())*10000 << endl;
+    //
+    // const scalar dt = alpha.mesh().time().deltaTValue();
+    // Info << "Flame: sum(dmdt*V*dt): "
+    //   << sum(dmdtf().internalField()*flame_.alpha().mesh().V())*dt*10000 << endl;
+    // Info << "Bed: sum(dmdt*V*dt): "
+    //   << sum(dmdt_().internalField()*bed_.alpha().mesh().V())*dt*10000 << endl;
+
 }
 
 void Foam::interfaceTrackingModels::entrainedInterfaceMotion::store()

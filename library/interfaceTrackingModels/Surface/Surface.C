@@ -414,11 +414,14 @@ Foam::tmp<Foam::volScalarField> Foam::Surface::regressInterface
 
             As_[Own[i]] = As_[Nei[i]];
             rb_[Own[i]] = rb_[Nei[i]];
-            dmdt_[Own[i]] = alpha0[Nei[i]]*dmdt[flame[k]]*V[flame[k]]/V[Nei[i]];
+            dmdt_[Own[i]] = alpha0[Nei[i]]*dmdt[flame[k]]*V[flame[k]]/V[Own[i]];
             nHat_[Own[i]] = vector(1, 0, 0);
-            // Info << " ( " << Nei[i] << " " << Own[i] << " ) -> " << " ( " << dmdt_[Nei[i]] << " " << dmdt_[Own[i]] << " ) ";
+            // Info << " ( " << Nei[i] << " " << Own[i] << " ) -> "
+            //   << " ( " << dmdt_[Nei[i]] << " " << dmdt_[Own[i]] << " ) "
+            //   << " Flame: dmdt: " << dmdt[flame[k]] << " vF: " << V[flame[k]]
+            //   << " fp: " << fp << endl;
 
-            scalar newalpha = alpha0[Nei[i]] - ((1.0 - MR)/fp)*dmdt[flame[k]]*V[flame[k]]*dt/V[Nei[i]];
+            scalar newalpha = alpha0[Nei[i]] - (1.0 - MR/fp)*dmdt[flame[k]]*V[flame[k]]*dt/V[Nei[i]];
             if (newalpha < 0)
             {
                 scalar Vr = -newalpha*V[Nei[i]];
