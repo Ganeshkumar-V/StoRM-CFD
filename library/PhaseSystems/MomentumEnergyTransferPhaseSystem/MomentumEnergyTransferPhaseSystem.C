@@ -223,15 +223,15 @@ MomentumEnergyTransferPhaseSystem
             )
         );
 
-        Kdfs_.set
-        (
-            pair,
-            new surfaceScalarField
-            (
-                IOobject::groupName("Kdf", pair.name()),
-                dragModelIter()->Kf()
-            )
-        );
+        // Kdfs_.set
+        // (
+        //     pair,
+        //     new surfaceScalarField
+        //     (
+        //         IOobject::groupName("Kdf", pair.name()),
+        //         dragModelIter()->Kf()
+        //     )
+        // );
     }
 
     forAllConstIter
@@ -308,7 +308,7 @@ Foam::MomentumEnergyTransferPhaseSystem<BasePhaseSystem>::momentumTransfer()
     )
     {
         *Kds_[dragModelIter.key()] = dragModelIter()->K();
-        *Kdfs_[dragModelIter.key()] = dragModelIter()->Kf();
+        // *Kdfs_[dragModelIter.key()] = dragModelIter()->Kf();
     }
 
     // Add the implicit part of the drag force

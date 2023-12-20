@@ -369,15 +369,17 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
       scalar newalpha = alpha0[Nei[i]] - rb_[Nei[i]]*As_[Nei[i]]*dt;
       if (newalpha < 0)
       {
+          scalar Vr = -newalpha*V[Nei[i]];
+          alpha[Nei[i]] = SMALL;
+          
           // Find Neighbour of Neighbour cell
+          bool isFound = false;
           label NNei = findNeighbour(alpha0, Nei[i]);
 
           if (NNei != -1)
           {
-                scalar Vr = -newalpha*V[Nei[i]];
-                alpha[Nei[i]] = SMALL;
-
                 alpha[NNei] = alpha0[NNei] - Vr/V[NNei];
+                isFound = true;
                 if (alpha[NNei] < 0)
                 {
                     FatalErrorInFunction
@@ -407,10 +409,8 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
                        if ((fC[celli] == Nei[i]) && (nf[celli] == 1 - SMALL))
                        {
                          transfer_ = 1.0; // To allow processor exchange information
+                         isFound = true;
                          // Interface Transfer
-                         scalar Vr = -newalpha*V[Nei[i]];
-                         alpha[Nei[i]] = SMALL;
-
                          transferAlpha_[celli] = nf[celli] - Vr/V[Nei[i]];
                          Pout << "transferCell: " << transferAlpha_ << endl;
                          // This should be V[Nf[celli]]! But how to get neighbouring cell's volume?
@@ -420,11 +420,50 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
                  }
                }
           }
+
+          if (isFound == false) // No adjacent cells have been found and hence stoping the regression here.
+          {
+             // Correcting source terms for termination
+             dmdt_[Nei[i]] = alpha0[Nei[i]]*V[Nei[i]]/dt;
+             dmdt_[Own[i]] = 0.0;
+          }
       }
       else
       {
           alpha[Nei[i]] = newalpha;
       }
+    }
+  }
+
+  // Boundary Patches
+  forAll(mesh.boundary(), patchi)
+  {
+    const fvPatch& patch = mesh.boundary()[patchi];
+    const labelList& fC = patch.faceCells();
+    const scalarField pSf(patch.magSf());
+    forAll(fC, celli)
+    {
+      if
+      (
+          (alpha0[fC[celli]] <= 0.5) &&
+          (alpha0[fC[celli]] > Zero) &&
+          (interface_[fC[celli]] == 0)
+      )
+      {
+        interface_[fC[celli]] = 1.0;
+        As_[fC[celli]] = pSf[celli]/V[fC[celli]];
+        rb_[fC[celli]] = (a*pow(p[fC[celli]]/1e6, n)).value()*1e-2;  // burning Rate
+        dmdt_[fC[celli]] = rb_[fC[celli]]*As_[fC[celli]];
+
+        alpha[fC[celli]] = alpha0[fC[celli]] - rb_[fC[celli]]*As_[fC[celli]]*dt;
+        if (alpha[fC[celli]] < 0)
+        {
+          alpha[fC[celli]] = Zero;
+          As_[fC[celli]] = (alpha0[fC[celli]] - alpha[fC[celli]])
+                            /(rb_[fC[celli]]*dt);
+        }
+      }
+      else continue;
     }
   }
 
@@ -467,9 +506,11 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::regress
           UIPstream recvFromOwner(patch.neighbProcNo(), pBufnB);
           recvFromOwner >> transferCellReceive;
           const labelList& faceCells(patch.faceCells());
+          const scalarField alpha0NF(alpha0.boundaryField()[patchi].patchNeighbourField());
           forAll(faceCells, i)
           {
-            alpha[faceCells[i]] = transferCellReceive[i];
+              if (alpha0NF[i] != transferCellReceive[i])
+              alpha[faceCells[i]] = transferCellReceive[i];
           }
         }
       }
@@ -593,6 +634,8 @@ void Foam::interfaceTrackingModels::subCellularInterfaceMotion::findInterface
     // case:5 Interface is not present (Ignore)
     else continue;
   }
+
+  //
 
 }
 

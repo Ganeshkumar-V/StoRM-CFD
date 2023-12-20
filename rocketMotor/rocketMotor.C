@@ -44,6 +44,7 @@ Description
 #include "fvcSmooth.H"
 #include "phasePair.H"
 #include "GeometricField.H"
+#include "processorFvPatch.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -76,6 +77,8 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
+    // Info << "Propellant Volume: "
+    //       << sum(fluid.phases()[2].internalField()*mesh.V())*10000 << endl;
 
     // Correcting Phase Volume Fractions
     forAll(fluid.phases(), phasei)
@@ -168,9 +171,13 @@ int main(int argc, char *argv[])
             }
         }
 
-        volScalarField rhog(phases[0].thermo().rho());
-        rhog.clip(SMALL, max(rhog));
-        Mach = mag(phases[0].U())/sqrt(phases[0].thermo().gamma()*p/rhog);
+        if (runTime.write())
+        {
+            rhog = phases[0].thermo().rho();
+            gammag = phases[0].thermo().gamma();
+        }
+        // rhog.clip(SMALL, max(rhog));
+        // Mach = mag(phases[0].U())/sqrt(phases[0].thermo().gamma()*p/rhog);
 
         runTime.write();
 

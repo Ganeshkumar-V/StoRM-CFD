@@ -84,6 +84,8 @@ protected:
 
         // Adiabatic Flame Temperature
         volScalarField Tad;
+        volScalarField Hs1;
+        volScalarField Hs2;
 
         // Burning rate
         volScalarField rb_;

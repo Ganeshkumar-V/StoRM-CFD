@@ -7,13 +7,37 @@ inline void ImposeWall(volScalarField& psi, const volScalarField& alpha)
 
   forAll(Own, celli)
   {
-    if ((alpha[Own[celli]] < One) && (alpha[Nei[celli]] >= One))
+      if ((alpha[Own[celli]] < One) && (alpha[Nei[celli]] >= One))
+      {
+          psi[Nei[celli]] = psi[Own[celli]];
+      }
+      else if ((alpha[Nei[celli]] < One) && (alpha[Own[celli]] >= One))
+      {
+          psi[Own[celli]] = psi[Nei[celli]];
+      }
+  }
+
+
+  forAll(psi.mesh().boundary(),patchi)
+  {
+    if (isType<processorFvPatch>(psi.mesh().boundary()[patchi]))
     {
-      psi[Nei[celli]] = psi[Own[celli]];
-    }
-    else if ((alpha[Nei[celli]] < One) && (alpha[Own[celli]] >= One))
-    {
-      psi[Own[celli]] = psi[Nei[celli]];
+      const processorPolyPatch& pp
+          = refCast<const processorPolyPatch>(psi.mesh().boundaryMesh()[patchi]);
+      if (pp.neighbour())
+      {
+        const scalarField& psibF(psi.boundaryField()[patchi].patchNeighbourField());
+        const scalarField& alphaF(alpha.boundaryField()[patchi].patchInternalField());
+        const scalarField& alphabF(alpha.boundaryField()[patchi].patchNeighbourField());
+        const labelList& fC(psi.mesh().boundary()[patchi].faceCells());
+        forAll(fC, i)
+        {
+          if ((alphabF[i] < One) && (alphaF[i] >= One))
+          {
+            psi[fC[i]] = psibF[i];
+          }
+        }
+      }
     }
   }
 
@@ -29,7 +53,7 @@ inline void correctFlux(surfaceScalarField& flux, const volScalarField& propella
 
     forAll(Own, i)
     {
-      if(propellant[Own[i]] == One && propellant[Nei[i]] == One)
+      if(propellant[Own[i]] == One || propellant[Nei[i]] == One)
       {
          flux[i] = 0;
       }
@@ -40,5 +64,15 @@ inline void correctFlux(surfaceScalarField& flux, const volScalarField& propella
 
 inline void correctU(volVectorField& U, const volScalarField& propellant)
 {
-  U = neg(propellant - (1 - SMALL))*U;
+  scalar One(1 - SMALL);
+
+  forAll(propellant, i)
+  {
+    if(propellant[i] == One)
+    {
+       U[i] = vector(0, 0, 0);
+    }
+    else continue;
+  }
+  // U = neg(propellant - (1 - SMALL))*U;
 }

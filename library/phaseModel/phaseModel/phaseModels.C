@@ -41,7 +41,7 @@ License
 #include "InertPhaseModel.H"
 #include "MovingPhaseModel.H"
 #include "StaticPhaseModel.H"
-#include "IsothermalPhaseModel.H"
+#include "NoEnergyChangePhaseModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -120,7 +120,7 @@ namespace Foam
     );
 
     typedef
-        IsothermalPhaseModel
+        NoEnergyChangePhaseModel
         <
             PurePhaseModel
             <

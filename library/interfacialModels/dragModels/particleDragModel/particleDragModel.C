@@ -61,7 +61,8 @@ Foam::particleDragModel::particleDragModel
             registerObject
         )
     ),
-    pair_(pair)
+    pair_(pair),
+    factor_("", dimless, 1.0)
 {}
 
 
@@ -84,7 +85,8 @@ Foam::particleDragModel::particleDragModel
             registerObject
         )
     ),
-    pair_(pair)
+    pair_(pair),
+    factor_("", dimless, dict.get<scalar>("factor"))
 {}
 
 
@@ -138,7 +140,7 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModel::Ki() const
       muc = tmc();
     }
     return
-        0.75
+        0.75*factor_
        *CdRe()
        *muc
        /sqr(pair_.dispersed().d());
@@ -153,6 +155,7 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModel::K() const
 
 Foam::tmp<Foam::surfaceScalarField> Foam::particleDragModel::Kf() const
 {
+    Info << "I am getting called!" << exit(FatalIOError);
     return
         max
         (

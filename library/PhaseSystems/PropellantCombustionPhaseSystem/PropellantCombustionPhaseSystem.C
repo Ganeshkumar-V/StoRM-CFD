@@ -69,6 +69,22 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::PropellantCombustionPhas
         dimensionedScalar("", dimTemperature, this->template get<scalar>("Tad"))
       )
     ),
+    Hs1
+    (
+      volScalarField
+      (
+        IOobject("Hs1", mesh), mesh,
+        dimensionedScalar("", dimVelocity*dimVelocity, 0)
+      )
+    ),
+    Hs2
+    (
+      volScalarField
+      (
+        IOobject("Hs2", mesh), mesh,
+        dimensionedScalar("", dimVelocity*dimVelocity, 0)
+      )
+    ),
     rb_
     (
       volScalarField
@@ -213,6 +229,12 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::PropellantCombustionPhas
             dimensionedVector(dimless)
           )
         );
+
+        // Set Source terms
+        const phaseModel& phase1 = pair.phase1();
+        const phaseModel& phase2 = pair.phase2();
+        Hs1 = phase1.thermo().he(phase1.thermo().p(), Tad);
+        Hs2 = phase2.thermo().he(phase2.thermo().p(), Tad);
     }
 
     // clipping Regression Alpha
@@ -360,12 +382,12 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::heatTransfer() const
     const phaseModel& phase1 = pair.phase1();
     const phaseModel& phase2 = pair.phase2();
 
-    // Enthalpy source
-    const tmp<volScalarField> ths1(phase1.thermo().he(phase1.thermo().p(), Tad));
-    const volScalarField& hs1(ths1());
-
-    const tmp<volScalarField> ths2(phase2.thermo().he(phase2.thermo().p(), Tad));
-    const volScalarField& hs2(ths2());
+    // Enthalpy source (store this and don not calculate it again and again !!!)
+    // const tmp<volScalarField> ths1(phase1.thermo().he(phase1.thermo().p(), Tad));
+    // const volScalarField& hs1(ths1());
+    //
+    // const tmp<volScalarField> ths2(phase2.thermo().he(phase2.thermo().p(), Tad));
+    // const volScalarField& hs2(ths2());
 
     // Equations
     fvScalarMatrix& eqn1 = *eqns[phase1.name()];
@@ -373,9 +395,9 @@ Foam::PropellantCombustionPhaseSystem<BasePhaseSystem>::heatTransfer() const
 
     // Implementation - 1
     eqn1 += - fvm::Sp((1.0 - retainer_)*pcoeff*rDmdt, eqn1.psi())
-            + (1.0 - retainer_)*pcoeff*rDmdt*hs1;
+            + (1.0 - retainer_)*pcoeff*rDmdt*Hs1;
     eqn2 += - fvm::Sp(gcoeff*rDmdt, eqn2.psi())
-            + gcoeff*rDmdt*hs2;
+            + gcoeff*rDmdt*Hs2;
 
     // Implementation - 2
     // Old Enthalpy

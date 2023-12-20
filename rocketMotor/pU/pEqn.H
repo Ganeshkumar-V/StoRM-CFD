@@ -480,6 +480,21 @@ while (pimple.correct())
     {
         phaseModel& phase = phases[phasei];
         phase.thermoRef().rho() += phase.thermo().psi()*(p_rgh - p_rgh_0);
+
+        if ((phasei == 2) && (phases.size() > 2))
+        {
+            // Solve mass conservation for propellant
+            PtrList<volScalarField> dmdts(fluid.dmdts());
+
+            volScalarField& rhoRef(phase.thermoRef().rho());
+            const volScalarField& alpha(phase);
+            fvScalarMatrix rhoEqn(fvm::ddt(alpha, rhoRef) == dmdts[phasei]);
+            rhoEqn.solve();
+        }
+        if (runTime.write())
+        {
+            rhoPropellant = phase.thermo().rho();
+        }
     }
 
     // Correct p_rgh for consistency with p and the updated densities

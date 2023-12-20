@@ -68,7 +68,7 @@ Foam::tmp<Foam::volScalarField> Foam::particleDragModels::CliftGauvin::CdRe() co
     const tmp<volScalarField> tRe(pair_.Re());
     const volScalarField& Re(tRe());
 
-    return 24*(1 + 0.015*pow(Re, 0.687) + 0.0175*(1 + 42500*pow(Re, -1.16)));
+    return 24.0*(1.0 + 0.15*pow(Re, 0.687) + 0.0175*Re/(1.0 + 42500/max(pow(Re, 1.16), SMALL)));
 }
 
 

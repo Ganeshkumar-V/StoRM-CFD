@@ -82,6 +82,58 @@ Foam::sharpInterfaceHeatTransferModels::KavanauRanzMarshall::K(const scalar resi
        *pair_.continuous().kappa()
        *Nu
        /sqr(pair_.dispersed().d());
+
+    // Implementation - 2
+    // volScalarField K
+    // (
+    //   IOobject("K.HeatTransfer", pair_.phase1().mesh()),
+    //   pair_.phase1().mesh(),
+    //   dimensionedScalar("", dimPower/(dimVolume*dimTemperature), 0.0)
+    // );
+    //
+    // const tmp<volScalarField> tmagUr(pair_.magUr());
+    // const volScalarField& magUr(tmagUr());
+    //
+    // const tmp<volScalarField> tmug(pair_.continuous().mu());
+    // const volScalarField& mug(tmug());
+    //
+    // const tmp<volScalarField> trhog(pair_.continuous().rho());
+    // const volScalarField& rhog(trhog());
+    //
+    // // const tmp<volScalarField> trhop(pair_.dispersed().rho());
+    // // const volScalarField& rhop(trhop());
+    //
+    // const tmp<volScalarField> tkappac(pair_.continuous().kappa());
+    // const volScalarField& kappac(tkappac());
+    //
+    // const tmp<volScalarField> tT(pair_.continuous().thermo().T());
+    // const volScalarField& T(tT());
+    //
+    // const tmp<volScalarField> tCpg(pair_.continuous().thermo().Cpv());
+    // const volScalarField& Cpg(tCpg());
+    //
+    // const tmp<volScalarField> tdp(pair_.dispersed().d());
+    // const volScalarField& dp(tdp());
+    //
+    // const volScalarField& alphad(pair_.dispersed());
+    // scalar Ma = 0.0;
+    // scalar Re = 0.0;
+    // scalar Pr = 0.0;
+    // scalar Nu0 = 0.0;
+    // scalar Nu = 0.0;
+    //
+    // forAll(K, i)
+    // {
+    //   Ma = magUr[i]/sqrt(gammaR.value()*T[i]);
+    //   Re = max(rhog[i]*magUr[i]*dp[i]/mug[i], SMALL);
+    //   Pr = mug[i]*Cpg[i]/kappac[i];
+    //   Nu0 = 2.0 + 0.6*sqrt(Re)*cbrt(Pr);
+    //   Nu = Nu0/(1 + 3.42*Nu0*Ma/(Re*Pr));
+    //   K[i] = pos(alphad[i] - cutoff)*6.0*alphad[i]*kappac[i]*Nu/sqr(dp[i]);
+    // }
+    // K.correctBoundaryConditions();
+    //
+    // return Foam::tmp<Foam::volScalarField>(new volScalarField ("tK", K));
 }
 
 // ************************************************************************* //

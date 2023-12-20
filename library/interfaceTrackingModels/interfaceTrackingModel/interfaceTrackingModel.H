@@ -122,9 +122,19 @@ public:
 
     // Member Functions
     virtual void correct() = 0;
-    virtual void regress(volScalarField& alpha, const volScalarField& alphaOld) = 0;
+    virtual void regress(volScalarField& alpha, const volScalarField& alphaOld);
+    virtual void regress(const scalar fp, volScalarField& alpha);
+    virtual void regress
+    (
+      volScalarField& alpha,
+      const volScalarField& alphaOld,
+      volScalarField& regressionAlpha,
+      const volScalarField& regressionAlphaOld
+    );
 
     virtual void findInterface(const volScalarField& alpha) = 0;
+
+    virtual void store(){}
 
     //- The burning rate
     virtual tmp<volScalarField> rb() const = 0;

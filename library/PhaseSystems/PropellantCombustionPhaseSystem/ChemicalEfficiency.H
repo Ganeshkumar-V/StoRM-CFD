@@ -175,23 +175,23 @@ public:
     // Public functions
     struct factors massTransfer() const
     {
-      return mtf;
+        return mtf;
     }
 
     void gasVelocity
     (
-      const volVectorField& nHat,
-      const volScalarField& P,
-      const volScalarField& rb,
-      volVectorField& Ug
+        const volVectorField& nHat,
+        const volScalarField& P,
+        const volScalarField& rb,
+        volVectorField& Ug
     )
     {
-      // Gas phase density
-      const tmp<volScalarField> trhoG(P/RT);
-      const volScalarField& rhoG(trhoG());
+        // Gas phase density
+        const tmp<volScalarField> trhoG(P/RT);
+        const volScalarField& rhoG(trhoG());
 
-      // Gas Velocity
-      Ug = rb*nHat*(1 - (rhoPropellant - alphaP*rhoP)/(rhoG*(1 - alphaP)));
+        // Gas Velocity
+        Ug = rb*nHat*(1 - (rhoPropellant - alphaP*rhoP)/(rhoG*(1 - alphaP)));
     }
 
 };
