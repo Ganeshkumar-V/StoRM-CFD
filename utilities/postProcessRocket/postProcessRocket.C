@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
                    << tmdotparticles << ", "
                    << tFgas << ", "
                    << tFparticles << ", "
-                   << tFparticles << ", "
+                   << tFpressure << ", "
                    << p[0] << ", " << "\n";
             }
             file.close();
