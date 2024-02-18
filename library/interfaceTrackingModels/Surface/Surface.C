@@ -403,18 +403,30 @@ Foam::tmp<Foam::volScalarField> Foam::Surface::regressInterface
             (Nei[i] == Own[i] + 1)
         )
         {
+            scalar dmdtflame = 0;
+            scalar Vflame = 0;
+
+            if (flame.size() > 0)
+            {
+              if (flame[k] != -1)
+              {
+                  dmdtflame = dmdt[flame[k]];
+                  Vflame = V[flame[k]];
+              }
+            }
+
             interface_[Nei[i]] = 1;
             iOwners[k] = Own[i];
             iNeighbours[k] = Nei[i];
 
             As_[Nei[i]] = Sf[i]/V[Nei[i]];  // Area of face between owner and neighbour
             rb_[Nei[i]] = rb(p[Nei[i]]);  // burning Rate
-            dmdt_[Nei[i]] = (1 - alpha0[Nei[i]])*dmdt[flame[k]]*V[flame[k]]/V[Nei[i]];
+            dmdt_[Nei[i]] = (1 - alpha0[Nei[i]])*dmdtflame*Vflame/V[Nei[i]];
             nHat_[Nei[i]] = vector(1, 0, 0);
 
             As_[Own[i]] = As_[Nei[i]];
             rb_[Own[i]] = rb_[Nei[i]];
-            dmdt_[Own[i]] = alpha0[Nei[i]]*dmdt[flame[k]]*V[flame[k]]/V[Own[i]];
+            dmdt_[Own[i]] = alpha0[Nei[i]]*dmdtflame*Vflame/V[Own[i]];
             nHat_[Own[i]] = vector(1, 0, 0);
             // Info << " ( " << Nei[i] << " " << Own[i] << " ) -> "
             //   << " ( " << dmdt_[Nei[i]] << " " << dmdt_[Own[i]] << " ) "
