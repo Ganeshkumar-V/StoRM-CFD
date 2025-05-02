@@ -173,3 +173,43 @@ void findYplus(const phaseModel& phase)
     }
     Info << exit(FatalError);
 }
+
+inline void correctUY(volVectorField& U)
+{
+  forAll(U, i)
+  {
+    U[i].y() = 0;
+  }
+}
+
+inline void limitT(volScalarField& he, const scalarField heMax, const scalarField heMin)
+{
+  forAll(he, i)
+  {
+    if (he[i] > heMax[0])
+    {
+      he[i] = heMax[0];
+    }
+    if (he[i] < heMin[0])
+    {
+      he[i] = heMin[0];
+    }
+  }
+  // Info << "Limit Temperature Internal cells" << endl;
+
+  // forAll(T.boundaryField(), patchi)
+  // {
+  //   const scalarField& Tpatch(T.boundaryField()[patchi]);
+  //   scalarField& hepatch(he.boundaryFieldRef()[patchi]);
+  //   const scalarField& heMaxpatch(heMax.boundaryField()[patchi]);
+  //   Info << "Limit Temperature boundary cells" << patchi <<  endl;
+
+  //   forAll(Tpatch, i)
+  //   {
+  //     if (Tpatch[i] > 2740)
+  //     {
+  //       hepatch[i] = heMaxpatch[i];
+  //     }
+  //   }
+  // }
+}

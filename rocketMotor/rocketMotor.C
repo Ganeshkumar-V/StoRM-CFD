@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
               } 
             }
             labelList particleFreeCells(particleFreeCellSize);
-	    const volScalarField& gasTemp(phases[0].thermo().T());
+	          const volScalarField& gasTemp(phases[0].thermo().T());
             scalarField setParticleTemp(particleFreeCellSize, 300);
             {
               const volScalarField alphaP(phases[1]);

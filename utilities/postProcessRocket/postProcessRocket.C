@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     std::stringstream output;
 
     Info << "timeDirs: " << timeDirs.size() << endl;
-    #pragma omp parallel for ordered
+    // #pragma omp parallel for ordered
     for (label timei = 0; timei < timeDirs.size(); ++timei)
     // forAll(timeDirs, timei)
     {
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
             file.open(fileName, std::ios_base::app);
             file << output.str();
             output.str(std::string());
-            #pragma omp ordered
+            // #pragma omp ordered
             {
               file << runTime.timeName() << ", "
                    << tmdotGas << ", "
