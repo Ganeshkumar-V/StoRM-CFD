@@ -51,6 +51,17 @@ defineTurbulenceModelTypes
     phaseModel
 );
 
+#define makeRASModel(Type)                                                     \
+    makeTemplatedTurbulenceModel                                               \
+    (phaseModelPhaseCompressibleTurbulenceModel, RAS, Type)
+
+// -------------------------------------------------------------------------- //
+// RAS models
+// -------------------------------------------------------------------------- //
+
+#include "continuousMultiphaseKEpsilon.H"
+makeRASModel(continuousMultiphaseKEpsilon);
+
 // -------------------------------------------------------------------------- //
 // Additional models
 // -------------------------------------------------------------------------- //
