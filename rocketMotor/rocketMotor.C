@@ -65,11 +65,8 @@ int main(int argc, char *argv[])
     #include "createFields.H"
     #include "createFieldRefs.H"
 
-    if (!LTS)
-    {
-        #include "CourantNo.H"
-        #include "setInitialDeltaT.H"
-    }
+    #include "CourantNo.H"
+    #include "setInitialDeltaT.H"
 
     Switch partialElimination
     (
@@ -80,18 +77,19 @@ int main(int argc, char *argv[])
 
     Info<< "\nStarting time loop\n" << endl;
 
-    // Correcting Phase Volume Fractions (<- To avoid division by zero)
+    // Correcting Phase Volume Fractions <- To avoid division by zero
     forAll(fluid.phases(), phasei)
     {
-      fluid.phases()[phasei].clip(SMALL, 1 - SMALL);
+        fluid.phases()[phasei].clip(SMALL, 1 - SMALL);
     }
 
-    // Setting variables to initialize
+    // Initialization of some important correction fields
     labelList purePropellantCells(0);
     scalarField setTemp(0, 0);
     scalarField setPressure(0, 0);
     vectorField setVelocity(0, vector(0, 0, 0));
     label propellantIndex = fluid.get<label>("propellantIndex");
+    Switch arrestSwirlingFlow = fluid.getOrDefault<Switch>("arrestSwirlingFlow", false);
 
     while (runTime.run())
     {
@@ -179,8 +177,6 @@ int main(int argc, char *argv[])
             }
             //*********** End Find Particle Free Cells *******//
 
-            // #include "YEqns.H"
-
             #include "pU/UEqns.H"
             #include "EEqns.H"
             #include "pU/pEqn.H"
@@ -188,34 +184,25 @@ int main(int argc, char *argv[])
             fluid.correctKinematics();
             fluid.correctTurbulence();
 
+            Info << endl;
         }
 
-        if (runTime.write())
-        {
-            rhog = phases[0].thermo().rho();
-            gammag = phases[0].thermo().gamma();
-            if (propellantIndex != -1)
-            {
-                rhoPropellant = phases[propellantIndex].thermo().rho();
-            }
-        }
-        else
-        {
-            const tmp<volScalarField> trhog(phases[0].rho());
-            const tmp<volScalarField> tgammag(phases[0].thermo().gamma());
+        // Calculate gas phase Mach number
+        const tmp<volScalarField> trhog(gasPhase.rho());
+        const volScalarField& Rhog(trhog());
+        const tmp<volScalarField> tgammag(gasPhase.thermo().gamma());
+        const volScalarField& Gammag(tgammag());
+        Mach = mag(gasPhase.U())/sqrt(Gammag*p/Rhog);
 
-            const volScalarField& Rhog(trhog());
-            const volScalarField& Gammag(tgammag());
-            Mach = mag(phases[0].U())/sqrt(Gammag*p/Rhog);
-        }
-        // rhog.clip(SMALL, max(rhog));
-        // Mach = mag(phases[0].U())/sqrt(phases[0].thermo().gamma()*p/rhog);
-
+        // Write solution fields
         runTime.write();
-
         runTime.printExecutionTime(Info);
+
     }
+
+    // Function utility to find yPlus at the walls. 
     findYplus(phases[0]);
+
     Info<< "End\n" << endl;
 
     return 0;

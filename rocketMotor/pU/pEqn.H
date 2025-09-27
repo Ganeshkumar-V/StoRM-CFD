@@ -450,8 +450,8 @@ while (pimple.correct())
                       - phigFs[phase.index()]
                     );
 
-                // correct Fluxes
-                correctUY(phase.URef());
+                // Fix the velocity to zero at propellant cells 
+                if (arrestSwirlingFlow) correctUY(phase.URef());
                 if (propellantIndex != -1)
                 {
                     correctU(phase.URef(), phases[propellantIndex]);
