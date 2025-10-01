@@ -69,7 +69,7 @@ Foam::particleDragModel::particleDragModel
       (
         IOobject::groupName("Ur", pair.name()),
         pair.phase1().mesh(),
-        IOobject::MUST_READ,
+        IOobject::NO_READ,
         IOobject::NO_WRITE
       ),
       pair.phase1().mesh(),
@@ -106,8 +106,8 @@ Foam::particleDragModel::particleDragModel
       (
         IOobject::groupName("Ur", pair.name()),
         pair.phase1().mesh(),
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
+        IOobject::NO_READ,
+        IOobject::NO_WRITE
       ),
       pair.Ur()
     ),

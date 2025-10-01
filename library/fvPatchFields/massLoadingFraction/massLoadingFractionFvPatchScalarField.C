@@ -179,15 +179,11 @@ void Foam::massLoadingFractionFvPatchScalarField::updateCoeffs
             IOobject::groupName("phi", particle_)
         )
     );
-
-    if (Name_ == gas_)
-    {
-        operator==(1/(1 + (phi_/(1 - phi_))*rhog/rhop));
-    }
-    else
-    {
-        operator==(1/(1 + ((1 - phi_)/max(phi_, 1e-15))*rhop*phip/rhog*phig));
-    }
+	//Info << "rhopphip: " << rhop*phip << endl;
+	//Info << "rhogphig: " << rhog*phig << endl;
+	//Info << "phi_: " << phi_ << endl;
+	//Info << "Ratio: " << rhop*phip/(rhog*phig) << exit(FatalError);
+    operator==(1/(1 + ((1 - phi_)/max(phi_, 1e-15))*rhop*phip/(rhog*phig)));
 
     fixedValueFvPatchScalarField::updateCoeffs();
 }

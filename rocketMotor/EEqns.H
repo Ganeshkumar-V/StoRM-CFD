@@ -54,13 +54,16 @@ for (int Ecorr=0; Ecorr<nEnergyCorrectors; Ecorr++)
           ImposeWall(phase.thermoRef().he(), phases[propellantIndex]);
         }
 
-        // // Limit Temperature
-        // labelList cells(1);
-        // scalarField Tmax(cells.size(), 2740);
-        // scalarField Tmin(cells.size(), 500);
-        // scalarField heMax(phase.thermo().he(Tmax, Tmax, cells));
-        // scalarField heMin(phase.thermo().he(Tmin, Tmin, cells));
-        // limitT(phase.thermoRef().he(), heMax, heMin);
+        // Limit Temperature
+        if (limitTemperature)
+	{
+          labelList cells(1);
+          scalarField Tmax(cells.size(), 3000);
+          scalarField Tmin(cells.size(), 300);
+          scalarField heMax(phase.thermo().he(Tmax, Tmax, cells));
+          scalarField heMin(phase.thermo().he(Tmin, Tmin, cells));
+          limitT(phase.thermoRef().he(), heMax, heMin);
+	}
     }
 
     fluid.correctThermo();

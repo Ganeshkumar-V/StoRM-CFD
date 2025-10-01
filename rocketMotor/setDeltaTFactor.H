@@ -1,6 +1,6 @@
 if (adjustTimeStep)
 {
-    scalar factor = 1.2;
+    scalar factor = 1.01;
     if (propellantIndex != -1)
     {
         // Propellant burning surface transition - Stabilization
@@ -11,7 +11,7 @@ if (adjustTimeStep)
         forAll(iF, i)
         {
             if ((iF[i] < 1 - SMALL) && (iF[i] > 0.98)) transition = 1.0;
-            else if ((iF[i] > SMALL) && (iF[i] < 0.02)) transition = 1.0;
+            else if ((iF[i] > SMALL) && (iF[i] < 0.05)) transition = 1.0;
         }
         reduce(transition, sumOp<scalar>());
 
@@ -36,5 +36,5 @@ if (adjustTimeStep)
         )
     );
 
-    Info << "deltaT = " <<  runTime.deltaTValue() << endl;
+    Info<< "deltaT = " <<  runTime.deltaTValue() << endl;
 }

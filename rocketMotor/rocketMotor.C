@@ -7,38 +7,34 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2018 OpenFOAM Foundation
     Copyright (C) 2020 OpenCFD Ltd.
-    Copyright (C) 2025 Ganeshkumar V, Dilip Srinivas Sundaram, IIT Gandhinagar
 -------------------------------------------------------------------------------
 License
-    This file is part of Rocket Motor Firing Simulation Software Suite, 
-    which is developed on top of OpenFOAM-v2112.
+    This file is part of OpenFOAM.
 
-    rocketMotor is free software: you can redistribute it and/or modify it
+    OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    rocketMotor is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    This software is not part of the official OpenFOAM® distribution.
-    OpenFOAM® is a registered trademark of OpenCFD Limited, the producer
-    of the OpenFOAM open source CFD software. This project is an independent
-    work and has no association with OpenCFD Limited.
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
 
     You should have received a copy of the GNU General Public License
-    along with rocketMotor.  If not, see <http://www.gnu.org/licenses/>.
--------------------------------------------------------------------------------
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
 Application
-    rocketMotor
+    reactingMultiphaseEulerFoam
 
 Description
-    CFD solver for rocket motor internal ballistics and combustion,
-    developed on top of OpenFOAM. 
-\*---------------------------------------------------------------------------*/
+    Solver for a system of any number of compressible fluid phases with a
+    common pressure, but otherwise separate properties. The type of phase model
+    is run time selectable and can optionally represent multiple species and
+    in-phase reactions. The phase system is also run time selectable and can
+    optionally represent different types of momentum, heat and mass transfer.
 
+\*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
 #include "multiPhaseSystem.H"
@@ -54,7 +50,7 @@ Description
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "helperFunctions.H"
+#include "AdiabaticWall.H"
 
 int main(int argc, char *argv[])
 {
@@ -69,30 +65,41 @@ int main(int argc, char *argv[])
     #include "createFields.H"
     #include "createFieldRefs.H"
 
-    #include "CourantNo.H"
-    #include "setInitialDeltaT.H"
+    if (!LTS)
+    {
+        #include "CourantNo.H"
+        #include "setInitialDeltaT.H"
+    }
 
     Switch partialElimination
     (
         pimple.dict().getOrDefault<Switch>("partialElimination", false)
     );
 
+    Switch solveRho
+    (
+	      pimple.dict().getOrDefault<Switch>("solveRho", false)
+    );
+
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
+    // Info << "Propellant Volume: "
+    //       << sum(fluid.phases()[2].internalField()*mesh.V())*10000 << endl;
 
-    // Correcting Phase Volume Fractions <- To avoid division by zero
+    // Correcting Phase Volume Fractions
     forAll(fluid.phases(), phasei)
     {
-        fluid.phases()[phasei].clip(SMALL, 1 - SMALL);
+      fluid.phases()[phasei].clip(SMALL, 1 - SMALL);
     }
 
-    // Initialization of some important correction fields
+    // Setting variables to initialize
     labelList purePropellantCells(0);
     scalarField setTemp(0, 0);
+    scalarField setPressure(0, 0);
     vectorField setVelocity(0, vector(0, 0, 0));
     label propellantIndex = fluid.get<label>("propellantIndex");
-    Switch arrestSwirlingFlow = fluid.getOrDefault<Switch>("arrestSwirlingFlow", false);
+    bool limitTemperature = fluid.getOrDefault<bool>("limitTemperature", false);
 
     while (runTime.run())
     {
@@ -118,38 +125,111 @@ int main(int argc, char *argv[])
             fluid.solve();
             fluid.correct();
 
-            // Find pure propellant cells
-            #include "propellantCells.H"
+            // // Reconstruct Propellant surface
+            // surf.reconstruct();
 
-            // Find particle free cells
-            #include "particleFreeCells.H"
+            //***********  Start Find Propellant size ***********//
+            if (propellantIndex != -1)
+            {
+              label purePropellantSize = 0;
+              scalar cutoff = 0.999; //(1.0 - SMALL);
+              {
+                const volScalarField& propellant = phases[propellantIndex];
+
+                forAll(propellant, i)
+                {
+                  if (propellant[i] >= cutoff)
+                  {
+                    purePropellantSize++;
+                  }
+                }
+              }
+              purePropellantCells = labelList(purePropellantSize);
+              setTemp = scalarField
+              (
+                purePropellantSize,
+                fluid.getOrDefault<scalar>("Tset", 2000)
+              );
+              setPressure = scalarField(purePropellantSize, 101325);
+              setVelocity = vectorField(purePropellantSize, vector(0, 0, 0));
+              {
+                const volScalarField& propellant = phases[propellantIndex];
+
+                label j = 0;
+                forAll(propellant, i)
+                {
+                  if (propellant[i] >= cutoff)
+                  {
+                    purePropellantCells[j] = i;
+                    j++;
+                  }
+                }
+              }
+            }
+            //***********  End Find Propellant size ***********//
+
+            //*********** Start Find Particle Free Cells ******//
+            label particleFreeCellSize = 0;
+            {
+              const volScalarField alphaP(phases[1]);
+              forAll(alphaP, i)
+              {
+                if(alphaP[i] < 1e-10) { particleFreeCellSize++; }
+              } 
+            }
+            labelList particleFreeCells(particleFreeCellSize);
+	          const volScalarField& gasTemp(phases[0].thermo().T());
+            scalarField setParticleTemp(particleFreeCellSize, 300);
+            {
+              const volScalarField alphaP(phases[1]);
+              label j = 0;
+              forAll(alphaP, i)
+              {
+                if(alphaP[i] < 1e-10) { particleFreeCells[j] = i; setParticleTemp[j] = gasTemp[i]; j++; }
+              }
+            }
+            //*********** End Find Particle Free Cells *******//
+
+            // #include "YEqns.H"
 
             #include "pU/UEqns.H"
             #include "EEqns.H"
             #include "pU/pEqn.H"
 
             fluid.correctKinematics();
-            fluid.correctTurbulence();
 
-            Info << endl;
+            // if (pimple.turbCorr())
+            // {
+                fluid.correctTurbulence();
+            // }
         }
 
-        // Calculate gas phase Mach number
-        const tmp<volScalarField> trhog(gasPhase.rho());
-        const volScalarField& Rhog(trhog());
-        const tmp<volScalarField> tgammag(gasPhase.thermo().gamma());
-        const volScalarField& Gammag(tgammag());
-        Mach = mag(gasPhase.U())/sqrt(Gammag*p/Rhog);
+        if (runTime.write())
+        {
+            rhog = phases[0].thermo().rho();
+            gammag = phases[0].thermo().gamma();
+            if (propellantIndex != -1)
+            {
+                rhoPropellant = phases[propellantIndex].thermo().rho();
+            }
+        }
+        else
+        {
+            const tmp<volScalarField> trhog(phases[0].rho());
+            const tmp<volScalarField> tgammag(phases[0].thermo().gamma());
 
-        // Write solution fields
+            const volScalarField& Rhog(trhog());
+            const volScalarField& Gammag(tgammag());
+            Mach = mag(phases[0].U())/sqrt(Gammag*p/Rhog);
+        }
+        // rhog.clip(SMALL, max(rhog));
+        // Mach = mag(phases[0].U())/sqrt(phases[0].thermo().gamma()*p/rhog);
+
         runTime.write();
+
         runTime.printExecutionTime(Info);
-
     }
-
-    // Function utility to find yPlus at the walls. 
     findYplus(phases[0]);
-
     Info<< "End\n" << endl;
 
     return 0;

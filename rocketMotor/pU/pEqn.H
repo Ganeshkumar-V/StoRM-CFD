@@ -379,6 +379,12 @@ while (pimple.correct())
                 }
             }
 
+            // Fixing Pressure + Impose Walls
+            // if (propellantIndex != -1)
+            // {
+            //   pEqn.setValues(purePropellantCells, setPressure);
+            // }
+
             solve
             (
                 pEqn,
@@ -444,8 +450,8 @@ while (pimple.correct())
                       - phigFs[phase.index()]
                     );
 
-                // Fix the velocity to zero at propellant cells 
-                if (arrestSwirlingFlow) correctUY(phase.URef());
+                // correct Fluxes
+                correctUY(phase.URef());
                 if (propellantIndex != -1)
                 {
                     correctU(phase.URef(), phases[propellantIndex]);
@@ -478,6 +484,17 @@ while (pimple.correct())
     {
         phaseModel& phase = phases[phasei];
         phase.thermoRef().rho() += phase.thermo().psi()*(p_rgh - p_rgh_0);
+
+        if ((phasei == 2) && (phases.size() > 2) && (solveRho))
+        {
+            // Solve mass conservation for propellant
+            PtrList<volScalarField> dmdts(fluid.dmdts());
+
+            volScalarField& rhoRef(phase.thermoRef().rho());
+            const volScalarField& alpha(phase);
+            fvScalarMatrix rhoEqn(fvm::ddt(alpha, rhoRef) == dmdts[phasei]);
+            rhoEqn.solve();
+        }
     }
 
     // Correct p_rgh for consistency with p and the updated densities

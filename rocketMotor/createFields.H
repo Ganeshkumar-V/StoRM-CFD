@@ -13,6 +13,8 @@ multiPhaseSystem::phaseModelList& phases = fluid.phases();
 
 // Phases
 phaseModel& gasPhase(phases[0]);  // Gas phase model
+phaseModel& particlePhase(phases[1]);  // Particle phase model
+// phaseModel& propellantPhase(phases[2]);  // Propellant phase model
 
 dimensionedScalar pMin
 (
@@ -23,7 +25,7 @@ dimensionedScalar pMin
 
 #include "gh.H"
 
-volScalarField& p = gasPhase.thermoRef().p();
+volScalarField& p = phases[0].thermoRef().p();
 
 Info<< "Reading field p_rgh\n" << endl;
 volScalarField p_rgh
@@ -114,5 +116,62 @@ volScalarField Mach
       IOobject::NO_READ,
       IOobject::AUTO_WRITE
     ),
-    mag(gasPhase.U())/sqrt(gasPhase.thermo().gamma()*p/gasPhase.thermo().rho())
+    mag(phases[0].U())/sqrt(phases[0].thermo().gamma()*p/phases[0].thermo().rho())
 );
+
+// Gas phase density and specific heat ratios
+volScalarField rhog
+(
+    IOobject
+    (
+      "rho.gas",
+      runTime.timeName(),
+      mesh,
+      IOobject::NO_READ,
+      IOobject::AUTO_WRITE
+    ),
+    phases[0].thermo().rho()
+);
+
+volScalarField gammag
+(
+    IOobject
+    (
+      "gamma.gas",
+      runTime.timeName(),
+      mesh,
+      IOobject::NO_READ,
+      IOobject::AUTO_WRITE
+    ),
+    phases[0].thermo().gamma()
+);
+
+volScalarField rhoPropellant
+(
+    IOobject
+    (
+        "rho",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    phases[0].thermo().rho()
+);
+if (phases.size() > 2)
+{
+    rhoPropellant = phases[2].thermo().rho();
+}
+
+//- Pointer to reconstruction scheme for propellant surface
+// autoPtr<reconstructionSchemes> surf_
+// (
+//     reconstructionSchemes::New
+//     (
+//         propellantPhase,
+//         propellantPhase.phi(),
+//         propellantPhase.U(),
+//         mesh.solverDict(propellantPhase.name())
+//     )
+// );
+// reconstructionSchemes& surf(surf_());
