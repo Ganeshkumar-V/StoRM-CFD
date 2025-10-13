@@ -54,7 +54,7 @@ Foam::sameAsFvPatchField<Type>::sameAsFvPatchField
     fixedValueFvPatchField<Type>(p, iF, dict, false),
     Name_(dict.get<word>("field"))
 {
-    if (this->db().template foundObject<GeometricField<scalar, fvPatchField, volMesh>>(Name_))
+    if (this->db().template foundObject<GeometricField<Type, fvPatchField, volMesh>>(Name_))
     {
         const fvPatchField<Type>& pF =
             this->patch().template lookupPatchField
@@ -139,7 +139,7 @@ void Foam::sameAsFvPatchField<Type>::updateCoeffs()
         return;
     }
 
-    if (this->db().template foundObject<GeometricField<scalar, fvPatchField, volMesh>>(Name_))
+    if (this->db().template foundObject<GeometricField<Type, fvPatchField, volMesh>>(Name_))
     {
     const fvPatchField<Type>& pF =
         this->patch().template lookupPatchField

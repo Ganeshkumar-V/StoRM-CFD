@@ -179,11 +179,16 @@ void Foam::massLoadingFractionFvPatchScalarField::updateCoeffs
             IOobject::groupName("phi", particle_)
         )
     );
-	//Info << "rhopphip: " << rhop*phip << endl;
-	//Info << "rhogphig: " << rhog*phig << endl;
+	// Info << "rhopphip: " << rhop*phip << endl;
+	// Info << "rhogphig: " << rhog*phig << endl;
+	// Info << "sumphig: " << sum(phig) << endl;
+	// Info << "sumphip: " << sum(phip) << endl;
 	//Info << "phi_: " << phi_ << endl;
 	//Info << "Ratio: " << rhop*phip/(rhog*phig) << exit(FatalError);
-    operator==(1/(1 + ((1 - phi_)/max(phi_, 1e-15))*rhop*phip/(rhog*phig)));
+    if (sum(phig) != 0)
+        operator==(1/(1 + ((1 - phi_)/max(phi_, 1e-15))*rhop*phip/(rhog*phig)));
+    else
+        operator==(this->patchInternalField());
 
     fixedValueFvPatchScalarField::updateCoeffs();
 }
