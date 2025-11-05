@@ -28,11 +28,16 @@ Application
     rocketMotor
 
 Description
-    Simulates gas-particle flow in the rocket motor while capturing propellant
-    surface regression. Propellant, gas and particles are modelled as three 
-    separate phases. Can also be used without propellant phase and can also
-    be applicable for simulating gas-particle flow in the rocket motor and
-    CD nozzle without propellant regression. 
+    Solver for simulating gas-particle flow in solid rocket motors with
+    optional propellant surface regression.
+
+    The solver treats the propellant, gas, and particle phases as three
+    separate phases and models their coupled interaction through
+    momentum, mass, and energy exchange.
+
+    Can also be used without the propellant phase, making it applicable
+    for simulations of two-phase (gas-particle) flows in rocket motors
+    and convergent-divergent nozzles without propellant regression. 
 
 \*---------------------------------------------------------------------------*/
 
@@ -75,12 +80,10 @@ int main(int argc, char *argv[])
   (
     pimple.dict().getOrDefault<Switch>("partialElimination", false)
   );
-
-  Switch solveRho
+  Switch arrestSwirlMotion
   (
-	  pimple.dict().getOrDefault<Switch>("solveRho", false)
+    pimple.dict().getOrDefault<Switch>("arrestSwirlMotion", false)
   );
-
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
   Info<< "\nStarting time loop\n" << endl;
