@@ -12,7 +12,7 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/compressible/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/compressible/turbulentFluidThermoModels/turbulentFluidFvPatchFields/lnInclude \
     -I$(LIB_SRC)/TurbulenceModels/phaseCompressible/lnInclude \
-    -I$(PWD)/../library/lnInclude
+    -I$(PRF_PROJECT_DIR)/src/lnInclude
 
 EXE_LIBS = \
     -L$(FOAM_PRF_LIBBIN) \

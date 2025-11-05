@@ -3,12 +3,14 @@ cd "${0%/*}" || exit                                # Run from this directory
 . ${WM_PROJECT_DIR:?}/wmake/scripts/AllwmakeParseArguments
 #------------------------------------------------------------------------------
 
-wmake $targetType library
-wmake $targetType rocketMotor
+# Make libraries
+wmake $targetType src
 
-#-- Compile Utilities --------------------------------------------------------
-cd utilities
-wmake $targetType postProcessRocket
-wmake $targetType mapVolFields
-wmake $targetType rocketConservation
-wmake $targetType setRocketInitField
+# Make Application
+wmake $targetType applications/rocketMotor
+
+# Make Utilities
+wmake $targetType utilities/postProcessRocket
+wmake $targetType utilities/mapVolFields
+wmake $targetType utilities/rocketConservation
+wmake $targetType utilities/setRocketInitField

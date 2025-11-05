@@ -2,10 +2,10 @@
 cd "${0%/*}" || exit                                # Run from this directory
 
 # Basic Libraries
-wclean library
+wclean src
 
 # Metal Oxidizer Combustion Library
-wclean rocketMotor
+wclean applications/rocketMotor
 
 # Additional utilities
 wclean utilities/mapVolFields
