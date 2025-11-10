@@ -1,15 +1,16 @@
 # Propellant Regression Framework
 
-An OpenFOAM-based collection of applications, solvers, utilities, and
-functionObjects for modelling propellant regression, particle-laden
-flows, and rocket motor-related post-processing. This repository bundles
-example applications (e.g., the `rocketMotor` application), a set
-of custom `functionObjects`, `fvPatchFields`, interfacial models, and
-utilities commonly used for propellant combustion/regression studies.
+<video controls preload="metadata" loop style="max-width:100%; height:auto; object-fit: cover;">
+    <source src="./media.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 
-This codebase is provided as source and is intended to be built and
-run on Linux platforms with a compatible C++ toolchain and OpenFOAM
-build tools (wmake / Allwmake-style build scripts are included).
+[Download / open media.mp4](./media.mp4)
+
+
+An OpenFOAM-based collection of applications, solvers, utilities, and functionObjects for modelling propellant regression, particle-laden flows, and rocket motor-related post-processing. This repository bundles example applications (e.g., the `rocketMotor` application), a set of custom `functionObjects`, `fvPatchFields`, interfacial models, and utilities commonly used for propellant combustion/regression studies.
+
+This codebase is provided as source and is intended to be built and run on Linux platforms with a compatible C++ toolchain and OpenFOAM build tools.
 
 ## ✨ Key Features
 
@@ -34,7 +35,7 @@ build tools (wmake / Allwmake-style build scripts are included).
 
 ## 🛠️ Requirements
 
-* **Platform:** Linux (tested on linux64)
+* **Platform:** Linux 
 
 * **Core:** OpenFOAM (developed and tested on **v2112**. This version is recommended, though it may work on other versions.)
 
@@ -42,33 +43,33 @@ build tools (wmake / Allwmake-style build scripts are included).
 
 * **Build System:** `make` and OpenFOAM toolchain (wmake, Allwmake)
 
-Note: This repository contains a `bashrc` at the project root to
-set up the environment. The `platforms/` directory contains a
-`linux64IcxDPInt64Opt` configuration; set `WM_OPTIONS` to the correct
-platform string before building.
+Note: This repository contains a `bashrc` at the project root to set up the environment. The `platforms/` directory contains the library and the applications build on this project
 
 ## 🚀 Quick Start — Compilation
 
-1.  Clone the repository and enter the directory:
+1. Ensure OpenFOAM v2112 is installed and source its environment before building this project.
+
+2. Clone the repository in your preferred parent directory (e.g., your projects folder), then enter the project directory:
 
     ```sh
-    git clone [https://github.com/Ganeshkumar-V/Propellant-Regression-Framework.git](https://github.com/Ganeshkumar-V/Propellant-Regression-Framework.git)
+    git clone https://github.com/Ganeshkumar-V/Propellant-Regression-Framework.git
     cd Propellant-Regression-Framework
     ```
 
-2.  Source the project `bashrc` to set up the environment:
+3.  Source the project `bashrc` to set up the environment:
 
     ```sh
     source bashrc
     ```
 
-3.  Compile the libraries, applications, and utilities:
+4.  Compile the libraries, applications, and utilities:
 
     ```sh
     ./Allwmake
     ```
 
     (Optional: run `./Allwclean` before building to clean the project.)
+
 ## 🎓 Tutorial Case Files
 
 This repository provides four sample cases under `tutorials/`:
