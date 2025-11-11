@@ -1,197 +1,321 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RocFlow - A Rocket Motor Simulation Suite</title>
-    <!-- Imports Tailwind CSS for styling -->
+    <!-- Updated Page Title -->
+    <title>RocIBCFD - Rocket Propulsion Software</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
     <style>
-        /* Adds smooth scrolling when you click an internal #link */
-        html {
-            scroll-behavior: smooth;
-        }
-        /* Sets a clean, modern font for the entire page */
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* A fallback font import in case Tailwind doesn't load it */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        /* Fallback for Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        /* Style for the copy-to-clipboard button */
+        .copy-btn-abs {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4A5568; /* gray-700 */
+            color: #E2E8F0; /* gray-300 */
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        
+        .code-block-wrapper:hover .copy-btn-abs {
+            opacity: 1;
+        }
+
+        .copy-btn-abs:hover {
+            background-color: #2D3748; /* gray-800 */
+        }
     </style>
 </head>
-<body class="bg-white text-gray-800">
+<body class="bg-gray-100 text-gray-800">
 
-    <!-- 
-      Navigation Bar 
-      - Fixed to the top, full-width, with a dark background.
-      - 'flex' and 'justify-between' create the "logo left, links right" layout.
-    -->
-    <nav class="bg-gray-800 text-white fixed top-0 left-0 right-0 z-10 shadow-md">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo / Brand Name -->
-                <a href="index.html" class="text-2xl font-bold text-white hover:text-blue-300 transition-colors">RocFlow</a>
-                
-                <!-- Navigation Links -->
-                <div class="hidden md:flex items-center space-x-6">
-                    
-                    <!-- Home Dropdown -->
-                    <div class="relative group">
-                        <!-- The trigger link (Home) -->
-                        <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium bg-blue-600 text-white flex items-center">
-                            <span>Home</span>
-                            <!-- Dropdown arrow -->
-                            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
-                        
-                        <!-- Dropdown Menu -->
-                        <!-- 
-                          - 'absolute' positions it relative to the 'group' div
-                          - 'top-full' places it just below the nav link
-                          - 'hidden group-hover:block' shows it only on hover
-                          - REMOVED 'mt-2' to fix the hover gap
-                        -->
-                        <div class="absolute left-0 top-full w-56 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-20">
-                            <a href="#about" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">What is RocFlow?</a>
-                            <a href="#features" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Features</a>
-                            <a href="#license" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">License</a>
-                            <a href="#acknowledgement" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Acknowledgement</a>
-                        </div>
-                    </div>
+    <!-- Header Navigation -->
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Project Title -->
+            <a href="index.html" class="text-2xl font-bold text-gray-900">RocIBCFD</a>
 
-                    <!-- Other Nav Links -->
-                    <a href="equations.html" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">Governing Equations and Models</a>
-                    <a href="features.html" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">Features</a>
-                    <a href="tutorials.html" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">Tutorials</a>
-                    <a href="documentation.html" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700 transition-colors">Documentation</a>
-                </div>
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
 
-                <!-- Mobile Menu Button (optional, but good practice) -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" class="text-white hover:text-blue-300 p-2">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            <!-- Desktop Navigation Links -->
+            <div class="hidden md:flex items-center space-x-6">
+                <!-- Home link with dropdown -->
+                <div class="relative group">
+                    <!-- "Home" Button -->
+                    <button class="text-white bg-blue-600 px-3 py-2 rounded-md text-sm font-medium" aria-current="page">
+                        Home
+                        <svg class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
+                    <!-- Dropdown Menu -->
+                    <div class="absolute -left-4 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
+                        <a href="#about" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">About RocIBCFD</a>
+                        <a href="#getting-started" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Getting Started</a>
+                        <a href="#contact" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Contact</a>
+                    </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- 
-          Mobile Menu
-          - Hidden by default, toggled by the button.
-        -->
-        <div id="mobile-menu" class="md:hidden hidden">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium bg-blue-600 text-white">Home</a>
-                <!-- Page Section Links -->
-                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white ml-4">What is RocFlow?</a>
-                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white ml-4">Features</a>
-                <a href="#license" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white ml-4">License</a>
-                <a href="#acknowledgement" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white ml-4">Acknowledgement</a>
-                
-                <!-- Other Page Links -->
-                <a href="equations.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Governing Equations</a>
-                <a href="features.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Features</a>
-                <a href="tutorials.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Tutorials</a>
-                <a href="documentation.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Documentation</a>
-            </div>
-        </div>
-    </nav>
 
-    <!-- 
-      Hero Section (Jumbotron)
-      - A large, eye-catching section to introduce the project.
-      - 'pt-32' and 'pb-24' add padding to account for the fixed navbar (h-16) and create space.
-    -->
-    <header id="home" class="bg-gray-100 pt-32 pb-24 text-center">
-        <div class="max-w-4xl mx-auto px-6">
-            <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-4">Welcome to RocFlow</h1>
-            <p class="text-lg md:text-xl text-gray-700 mb-8">
-                An OpenFOAM-based collection of applications, libraries, and utilities 
-                for simulating rocket motor firing.
-            </p>
-            <a href="#download" class="inline-block bg-blue-600 text-white font-bold text-lg py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
-                Download v1.0
-            </a>
+                <a href="equations.html" class="text-gray-700 hover:text-blue-600 transition-colors">Governing Equations</a>
+                <a href="features.html" class="text-gray-700 hover:text-blue-600 transition-colors">Features</a>
+                <a href="tutorials.html" class="text-gray-700 hover:text-blue-600 transition-colors">Tutorials</a>
+                <a href="documentation.html" class="text-gray-700 hover:text-blue-600 transition-colors">Documentation</a>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1">
+            <a href="index.html" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-blue-600" aria-current="page">Home</a>
+            <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-200">...About RocIBCFD</a>
+            <a href="#getting-started" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-200">...Getting Started</a>
+            <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-200">...Contact</a>
+            
+            <hr class="border-gray-300">
+            
+            <a href="equations.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-200">Governing Equations</a>
+            <a href="features.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-200">Features</a>
+            <a href="tutorials.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-200">Tutorials</a>
+            <a href="documentation.html" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-200">Documentation</a>
         </div>
     </header>
 
-    <!-- 
-      Main Content Area
-      - 'max-w-4xl' and 'mx-auto' center the content in a readable width.
-    -->
-    <main class="max-w-4xl mx-auto p-6 md:p-10">
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="bg-gray-900 text-white py-16 md:py-24">
+            <div class="container mx-auto px-6 text-center">
+                
+                <!-- Main Heading -->
+                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight">
+                    RocIBCFD
+                </h1>
+                
+                <!-- Subtitle -->
+                <p class="mt-4 text-xl md:text-2xl font-light text-gray-300 max-w-3xl mx-auto">
+                    An OpenFOAM based software tool for Internal Ballistic simulations of solid rocket motors
+                </p>
 
-        <!-- Section: What is RocFlow? -->
-        <section id="about" class="mb-12 scroll-mt-20">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b pb-2">What is RocFlow?</h2>
-            <p class="text-gray-700 leading-relaxed mb-4">
-                This repository provides an OpenFOAM-based collection of applications, libraries, and utilities for simulating rocket motor firing, specializing in propellant regression and particle-laden flows. The framework's core is the <code>rocketMotor</code> application, which handles propellant surface regression (for center-perforated and end-burning configurations) and various models for gas-particle interactions. The suite also supports CD nozzle simulations (both single-phase gas and two-phase gas-particle flows).
-            </p>
-            <p class="text-gray-700 leading-relaxed">
-                To accelerate research, this project includes a set of tutorial and validation cases, specialized boundary conditions for propulsion, and utilities for performance-parameter extraction and to setup initial-conditions.
-            </p>
+                <!-- "Quick Start" Button -->
+                <div class="mt-12">
+                    <button id="quick-start-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-all transform hover:scale-105 shadow-lg">
+                        🚀 Quick Start
+                    </button>
+                </div>
+
+            </div>
         </section>
 
-        <!-- Section: Features -->
-        <section id="features" class="mb-12 scroll-mt-20">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b pb-2">Features</h2>
-            <ul class="list-disc list-inside text-gray-700 leading-relaxed space-y-2 pl-4">
-                <li><strong>High Performance:</strong> Optimized for speed and efficiency.</li>
-                <li><strong>Cross-Platform:</strong> Runs on Windows, macOS, and Linux.</li>
-                <li><strong>Modular Design:</strong> Easily extensible with plugins and custom modules.</li>
-                <li><strong>Open Source:</strong> Free to use and modify under the MIT License.</li>
-                <li><strong>Community Supported:</strong> Actively developed and supported by a growing community.</li>
-            </ul>
+        <!-- Section 1: What is RocFlow -->
+        <section id="about" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <!-- CHANGED: Reduced max-w-4xl to max-w-3xl to make the pane narrower -->
+                <div class="max-w-4xl mx-auto text-center">
+                    
+                    <!-- ADDED: GIF Placeholder -->
+                    <div class="mb-12">
+                        <figure>
+                            <img src="../../media.gif" 
+                                 alt="Simulation GIF placeholder"
+                                 class="w-full h-auto rounded-lg shadow-md mx-auto object-cover"
+                                 onerror="this.src='https://placehold.co/800x450/111827/4d5b7c?text=Error+Loading+GIF'">
+                            <figcaption class="mt-4 text-sm text-gray-600">
+                                Center-perforated Rocket Motor Firing Simulation
+                            </figcaption>
+                        </figure>
+                    </div>
+
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">What is RocIBCFD?</h2>
+                    <p class="text-lg text-gray-700 leading-relaxed text-left md:text-center">
+                        This repository provides an OpenFOAM-based collection of applications, libraries, and utilities for simulating rocket motor firing, specializing in propellant regression and particle-laden flows. The framework's core is the <code>rocketMotor</code> application, which handles propellant surface regression (for center-perforated and end-burning configurations) and various models for gas-particle interactions. The suite also supports CD nozzle simulations (both single-phase gas and two-phase gas-particle flows). To accelerate research, this project includes a set of tutorial and validation cases, specialized boundary conditions for propulsion, and utilities for performance-parameter extraction and to setup initial-conditions.
+                    </Fp>
+                </div>
+            </div>
         </section>
 
-        <!-- Section: License -->
-        <section id="license" class="mb-12 scroll-mt-20">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b pb-2">License</h2>
-            <p class="text-gray-700 leading-relaxed">
-                MyProject is released under the <a href="#" class="text-blue-600 hover:underline">MIT License</a>. 
-                This means it is completely free for personal and commercial use. You can modify it, distribute it, 
-                and use it in your own projects without any restrictions.
-            </p>
+        <!-- Section 2: Getting Started -->
+        <section id="getting-started" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6">
+                <!-- CHANGED: Reduced max-w-4xl to max-w-3xl to make the pane narrower -->
+                <div class="max-w-3xl mx-auto text-center">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Getting Started</h2>
+                    <p class="text-lg text-gray-700 leading-relaxed mb-8">
+                        Getting started with RocIBCFD is straightforward. The primary way to get the code is by cloning the repository from GitHub. Our "Quick Start" guide has all the steps you need to compile and run your first simulation.
+                    </p>
+                    <a href="tutorials.html" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-all transform hover:scale-105 shadow-lg">
+                        View Tutorials
+                    </a>
+                </div>
+            </div>
         </section>
 
-        <!-- Section: Acknowledgement -->
-        <section id="acknowledgement" class="mb-12 scroll-mt-20">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4 border-b pb-2">Acknowledgement</h2>
-            <p class="text-gray-700 leading-relaxed">
-                This project is supported by the Awesome Foundation and contributions from the open-source community. 
-                We are grateful for all the support.
-            </p>
+        <!-- Section 3: Contact/Contribute -->
+        <section id="contact" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto text-center">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Contact & Contribute</h2>
+                    <p class="text-lg text-gray-700 leading-relaxed mb-8">
+                        RocIBCFD is an open-source project. We welcome contributions, bug reports, and feature requests. Please see the GitHub repository for information on how to contribute or get in touch with the developers.
+                    </p>
+                    <a href="https://github.com/Ganeshkumar-V/Propellant-Regression-Framework" target="_blank" rel="noopener noreferrer" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-8 rounded-lg text-lg transition-all transform hover:scale-105 shadow-lg">
+                        View on GitHub
+                    </a>
+                </div>
+            </div>
         </section>
-
     </main>
 
-    <!-- 
-      Footer
-      - A simple, centered footer with copyright information.
-    -->
-    <footer class="bg-gray-800 text-gray-400 py-8">
-        <div class="max-w-6xl mx-auto px-4 text-center">
-            <p>&copy; 2025 RocFlow. All rights reserved.</p>
-            <p class="text-sm">Built with HTML & Tailwind CSS</p>
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-10">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2024 RocIBCFD. All rights reserved.</p>
+            <p class="mt-2 text-sm">A project by GaneshKumar V.</p>
         </div>
     </footer>
 
-    <!-- JavaScript to toggle the mobile menu -->
+    <!-- 
+      "Quick Start" Modal
+      - Hidden by default, shown with JS.
+      - 'z-50' places it on top.
+    -->
+    <div id="code-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        
+        <!-- Modal Content -->
+        <!-- CHANGED: max-w-2xl to make the modal wider -->
+        <div class="relative z-50 max-w-2xl w-full mx-auto p-0 md:p-6" style="margin-top: -10vh;">
+            <!-- The "terminal" block -->
+            <div class="bg-gray-900 text-left rounded-lg shadow-lg">
+                <div class="flex justify-between items-center bg-gray-800 rounded-t-lg px-4 py-3">
+                    <span class="text-gray-300 text-lg font-semibold">🚀 Quick Start — Compilation</span>
+                    <!-- Close Button -->
+                    <button id="close-modal-button" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                <!-- New multi-step guide content -->
+                <div class="p-5 text-gray-300 max-h-[70vh] overflow-y-auto">
+                    <ol class="list-decimal list-outside space-y-4 pl-5">
+                        <li>
+                            Ensure OpenFOAM v2112 is installed and source its environment before building this project.
+                        </li>
+                        
+                        <li>
+                            Clone the repository and enter the directory:
+                            <!-- Code block with new copy button -->
+                            <div class="relative mt-2 code-block-wrapper">
+                                <button class="copy-btn-abs" data-clipboard-text="git clone https://github.com/Ganeshkumar-V/Propellant-Regression-Framework.git&#10;cd Propellant-Regression-Framework">Copy</button>
+                                <pre class="bg-gray-800 text-green-400 p-3 pl-4 pr-16 rounded-md text-sm overflow-x-auto"><code>$ git clone https://github.com/Ganeshkumar-V/Propellant-Regression-Framework.git
+$ cd Propellant-Regression-Framework</code></pre>
+                            </div>
+                        </li>
+
+                        <li>
+                            Source the project `bashrc` to set up the environment:
+                            <!-- Code block with new copy button -->
+                            <div class="relative mt-2 code-block-wrapper">
+                                <button class="copy-btn-abs" data-clipboard-text="source bashrc">Copy</button>
+                                <pre class="bg-gray-800 text-green-400 p-3 pl-4 pr-16 rounded-md text-sm overflow-x-auto"><code>$ source bashrc</code></pre>
+                            </div>
+                        </li>
+
+                        <li>
+                            Compile the libraries, applications, and utilities:
+                            <!-- Code block with new copy button -->
+                            <div class="relative mt-2 code-block-wrapper">
+                                <button class="copy-btn-abs" data-clipboard-text="./Allwmake">Copy</button>
+                                <pre class="bg-gray-800 text-green-400 p-3 pl-4 pr-16 rounded-md text-sm overflow-x-auto"><code>$ ./Allwmake</code></pre>
+                            </div>
+                            <p class="text-sm text-gray-400 mt-2">
+                                (Optional: run <code>./Allwclean</code> before building to clean the project.)
+                            </p>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Overlay (for closing) -->
+        <div id="modal-overlay" class="absolute inset-0 z-40"></div>
+    </div>
+
+
+    <!-- JavaScript -->
     <script>
+        // --- SCRIPT for Mobile Menu ---
         const menuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
-        
+        const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+
         menuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
 
-        // Close mobile menu if a link is clicked
-        mobileMenu.addEventListener('click', (e) => {
-            if (e.target.tagName === 'A') {
+        // Close mobile menu when a link is clicked
+        mobileMenuLinks.forEach(link => {
+            link.addEventListener('click', () => {
                 mobileMenu.classList.add('hidden');
-            }
+            });
+        });
+
+        // --- SCRIPT for "Quick Start" Modal ---
+        const quickStartButton = document.getElementById('quick-start-button');
+        const codeModal = document.getElementById('code-modal');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const modalOverlay = document.getElementById('modal-overlay');
+
+        // Show the modal
+        quickStartButton.addEventListener('click', () => {
+            codeModal.classList.remove('hidden');
+        });
+
+        // Hide the modal when the "Close" button is clicked
+        closeModalButton.addEventListener('click', () => {
+            codeModal.classList.add('hidden');
+        });
+        
+        // Hide the modal when the overlay (background) is clicked
+        modalOverlay.addEventListener('click', () => {
+            codeModal.classList.add('hidden');
+        });
+        
+        // --- SCRIPT for multiple "Copy" buttons ---
+        document.querySelectorAll('.copy-btn-abs').forEach(button => {
+            button.addEventListener('click', () => {
+                // Get the text from the `data-clipboard-text` attribute
+                const textToCopy = button.getAttribute('data-clipboard-text');
+                
+                // Use a temporary textarea to copy text
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    button.textContent = 'Copied!';
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    button.textContent = 'Error';
+                }
+                document.body.removeChild(textarea);
+            });
         });
     </script>
 
