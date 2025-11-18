@@ -93,7 +93,6 @@
         <div class="container mx-auto px-4 py-4 bg-white">
             <div class="max-w-7xl mx-auto">
                 <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Theoretical Framework</h2>
-    
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 items-start">
     
                     <div class="md:col-span-7">
@@ -126,82 +125,61 @@
                         </ul>
                     </div>
     
-                </div> </div>
+                </div> 
+            </div>
         </div>
+
+        <!--Governing Equations-->
         <section id="governing-equations" class="py-10 bg-white">
             <div class="container mx-auto px-6">
                 <div class="max-w-7xl mx-auto">
                     <p class="text-2xl font-bold text-gray-900 mb-4">Governing Equations:</p>
-                    <p class="text-lg text-gray-700 leading-relaxed mb-4">The mass conservation equations of gas and particle phases are given by:</p>
-                    <p>
+                    <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                        The mass conservation equations of gas and particle phases are given by:
                         $$
                         \frac{\partial}{\partial t}(\alpha_k \rho_k) + \boldsymbol{\nabla} \cdot (\alpha_k \rho_k \boldsymbol{u}_k) = \dot{m}'''_{prop \rightarrow k} \tag{1}
                         $$
-                    </p>
-
-                    <p class="text-lg text-gray-700 leading-relaxed mb-4">
-                        where $\alpha_k$, $\rho_k$, and $\boldsymbol{u}_k$ are the volume fraction, density, and velocity of the $k^{\text{th}}$ phase, respectively. The source term due to mass transfer from propellant to $k^{\text{th}}$ phase is denoted as $\dot{m}'''_{prop \rightarrow k}$. The momentum conservation equations for the gas phase and particle phase are given by:
-                    </p>
-
-                    <p>
+                        where $\alpha_k$, $\rho_k$, and $\boldsymbol{u}_k$ are the volume fraction, density, and velocity of the 
+                        $k^{\text{th}}$ phase, respectively. The source term due to mass transfer from propellant to $k^{\text{th}}$ 
+                        phase is denoted as $\dot{m}'''_{prop \rightarrow k}$. The momentum conservation equations for the gas phase 
+                        and particle phase are given by:
                         $$
                         \frac{\partial}{\partial t}(\alpha_g \rho_g \boldsymbol{u}_g) + \boldsymbol{\nabla} \cdot (\alpha_g \rho_g \boldsymbol{u}_g \boldsymbol{u}_g) = -\alpha_g \boldsymbol{\nabla} P + \boldsymbol{\nabla} \cdot (\alpha_g \boldsymbol{\tau}_g) 
                         + \boldsymbol{M}_{prop \rightarrow g} + \boldsymbol{f}_{D,g}
                         \tag{2}
                         $$
-                    </p>
-
-                    <p>
                         $$
                         \frac{\partial}{\partial t}(\alpha_p \rho_p \boldsymbol{u}_p) + \boldsymbol{\nabla} \cdot (\alpha_p \rho_p \boldsymbol{u}_p \boldsymbol{u}_p) = -\alpha_p \boldsymbol{\nabla} P + \boldsymbol{\nabla} \cdot \boldsymbol{\tau}_p - \boldsymbol{\nabla} P_p + \boldsymbol{M}_{prop \rightarrow p} + \boldsymbol{f}_{D,p} \tag{3}
                         $$
-                    </p>
-                    <p class="text-lg text-gray-700 leading-relaxed mb-4">
                         where $P$ is the common pressure experienced by all the phases, $\boldsymbol{\tau}_k$ is the shear stress in the $k^{\text{th}}$ phase, 
-                        and $f_{D,k}$ is the drag force experienced by the $k^{\text{th}}$ phase. The subscripts $g$ and $p$ refer to gas and particle phases, respectively. 
+                        and $\boldsymbol{f}_{D,k}$ is the drag force experienced by the $k^{\text{th}}$ phase. The subscripts $g$ and $p$ refer to gas and particle phases, respectively. 
                         Here $\boldsymbol{M}_{prop \rightarrow g}$ and $\boldsymbol{M}_{prop \rightarrow p}$ represent momentum source terms for the gas phase and particle phase, 
-                        respectively, due to regression. The shear stress in the gas phase is modeled as follows:
-                    </p>
-
-                    <p>
+                        respectively, due to regression. The shear stress in the gas and particle phases are modeled as follows:
                         $$
                         \boldsymbol{\tau}_g = \mu_g (\boldsymbol{\nabla} \boldsymbol{u}_g + \boldsymbol{\nabla} \boldsymbol{u}_g^T) - \frac{2}{3} \mu_g (\boldsymbol{\nabla} \cdot \boldsymbol{u}_g) \boldsymbol{I} \tag{4}
                         $$
-                    </p>
-                    <p class="text-lg text-gray-700 leading-relaxed mb-4">The shear stress in the particle phase is modeled as follows:</p>
-                    <p>
                         $$
                         \boldsymbol{\tau}_p = \mu_p (\boldsymbol{\nabla} \boldsymbol{u}_p + \boldsymbol{\nabla} \boldsymbol{u}_p^T) 
                         + (\lambda_p - \frac{2}{3} \mu_p) (\boldsymbol{\nabla} \cdot \boldsymbol{u}_p) \boldsymbol{I} \tag{5}
                         $$
-                    </p>
-
-                    <p class="text-lg text-gray-700 leading-relaxed mb-4">
                         The energy conservation equations for the gas phase and particle phase considered are:
-                    </p>
-
-                    <p>
                         $$
                         \frac{\partial}{\partial t}(\alpha_g \rho_g h_g) + \boldsymbol{\nabla} \cdot (\alpha_g \rho_g \boldsymbol{u}_g h_g) = \boldsymbol{\nabla} \cdot \left( \frac{\alpha_g \lambda_g}{C_{p,g}} \boldsymbol{\nabla} h_g \right) + \alpha_g \frac{DP}{Dt} 
                           + \alpha_g \boldsymbol{\tau}_g : \boldsymbol{\nabla} \boldsymbol{u}_g + \dot{q}'''_{p \rightarrow g} 
                           + f_{D,g} \cdot (\boldsymbol{u}_p - \boldsymbol{u}_g) + H_{prop \rightarrow g} 
                         \tag{6}
                         $$
-                    </p>
-
-                    <p>
                         $$
                         \frac{\partial}{\partial t}(\alpha_p \rho_p h_p) + \boldsymbol{\nabla} \cdot (\alpha_p \rho_p \boldsymbol{u}_p h_p) = \alpha_p \frac{DP}{Dt} + 
                         \alpha_p \boldsymbol{\tau}_p : \boldsymbol{\nabla} \boldsymbol{u}_p + H_{prop \rightarrow p} + \dot{q}'''_{g \rightarrow p} \tag{7}
                         $$
-                    </p>
-                    <p class="text-lg text-gray-700 leading-relaxed mb-4">
                         where $h$ is the enthalpy, $\lambda$ is the thermal conductivity, $C_p$ is the specific heat, 
                         $H_{\text{prop}\to k}$ is the enthalpy source term for the $k^{\text{th}}$ phase due to regression, and 
                         $q'''_{i\to j}$ is the rate of heat transfer from the $i^{\text{th}}$ phase to the $j^{\text{th}}$ phase. 
                         Note that the source terms due to propellant regression are only relevant to the computational cells adjacent to the surface of the propellant bed. 
                         For the remaining computational cells inside the rocket motor, only the source terms arising from particle–gas interactions are relevant.  
                     </p>
+                </div>
             </div>
         </section>
 
@@ -230,7 +208,11 @@
             <div class="container mx-auto px-6">
                 <div class="max-w-7xl mx-auto">
                     <p class="text-2xl font-bold text-gray-900 mb-4 text-center">Solution Algorithm</p>
-                    <img src="flowchart.png" alt="Flowchart illustrating solution algorithm" style="max-width: 50%; height: auto; display: block; margin: 0 auto;">
+                    <img src="flowchart.png" alt="Flowchart illustrating solution algorithm" 
+                    style="max-width: 50%; height: auto; display: block; margin: 0 auto;"> 
+                    <figcaption class="text-center text-gray-600 text-sm italic mt-2 mb-4">
+                        Flowchart illustrating solution algorithm [Reprinted with permission from AIAA]
+                    </figcaption>
                 </div>
             </div>
         </section>
