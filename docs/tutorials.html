@@ -131,9 +131,259 @@
 
     <!-- Main Content -->
     <main>
-        <section id="gas-nozzle" class="bg-white">
+        <div class="tutorial-page-wrapper">
 
-        </section>
+            <section id="gas-nozzle" class="tutorial-section">
+                <div class="section-header">
+                    <h2>1. CD Nozzle Flow - Gas Phase</h2>
+                </div>
+                
+                <div class="tutorial-content">
+                    <div class="row-split">
+                        <div class="description">
+                            <h3>Problem Description</h3>
+                            <p>
+                                This verification case simulates the compressible flow of a single-phase gas through a Convergent-Divergent (CD) nozzle. The simulation aims to validate the solver's capability to capture shock waves and expansion fans in the supersonic regime.
+                            </p>
+                        </div>
+                        <div class="media-container">
+                            <img src="path/to/your/schematic1.png" alt="CD Nozzle Schematic" class="schematic-img">
+                            <p class="caption">Fig 1.1: Domain boundaries and mesh topology.</p>
+                        </div>
+                    </div>
+        
+                    <div class="case-setup">
+                        <h3>Case Setup & Boundary Conditions</h3>
+                        <table class="bc-table">
+                            <thead>
+                                <tr>
+                                    <th>Patch Name</th>
+                                    <th>Condition Type</th>
+                                    <th>Value / Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Inlet</strong></td>
+                                    <td>Total Pressure / Temperature</td>
+                                    <td>100 bar / 3000 K</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Outlet</strong></td>
+                                    <td>Wave Transmissive</td>
+                                    <td>Atmospheric (1 bar)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Walls</strong></td>
+                                    <td>Slip / No-Slip</td>
+                                    <td>Adiabatic Wall</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+        
+                    <div class="results-container">
+                        <h3>Results</h3>
+                        <p>Steady-state Mach number distribution showing the shock location.</p>
+                        <img src="path/to/your/result1.png" alt="Mach Number Contour" class="result-img">
+                    </div>
+        
+                    <div class="github-link-container">
+                        <a href="https://github.com/Ganeshkumar-V/Propellant-Regression-Framework/tree/main/tutorials/nozzle/gasNozzle" target="_blank" class="btn-github">
+                            View Case Files on GitHub <i class="fab fa-github"></i> </a>
+                    </div>
+                </div>
+            </section>
+        
+            <div class="spacer"></div>
+        
+            <section id="two-phase-nozzle" class="tutorial-section">
+                <div class="section-header">
+                    <h2>2. Gas-Particle CD Nozzle Flow</h2>
+                </div>
+        
+                <div class="tutorial-content">
+                    <div class="row-split">
+                        <div class="description">
+                            <h3>Problem Description</h3>
+                            <p>
+                                This tutorial demonstrates the Euler-Euler multiphase solver capability. It simulates a gas carrying solid particles through a nozzle, highlighting the momentum and energy transfer (drag and heat transfer) between phases and the resulting velocity lag.
+                            </p>
+                        </div>
+                        <div class="media-container">
+                            <img src="path/to/your/schematic2.png" alt="Two Phase Nozzle Schematic" class="schematic-img">
+                            <p class="caption">Fig 2.1: Two-phase flow domain.</p>
+                        </div>
+                    </div>
+        
+                    <div class="case-setup">
+                        <h3>Case Setup & Boundary Conditions</h3>
+                        <table class="bc-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Gas Phase</th>
+                                    <th>Particle Phase</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Inlet</strong></td>
+                                    <td>Total P/T</td>
+                                    <td>Fixed Mass Flow Rate</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Particle Size</strong></td>
+                                    <td>-</td>
+                                    <td>Uniform (e.g., 50 µm)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="github-link-container">
+                         <a href="https://github.com/Ganeshkumar-V/Propellant-Regression-Framework/tree/main/tutorials/nozzle/gasParticleNozzle" target="_blank" class="btn-github">
+                            View Case Files on GitHub
+                        </a>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="spacer" style="height: 20px;"></div>
+
+    <section id="steady-SRM" class="tutorial-section">
+        <div class="section-header">
+            <h2>3. Internal Flow of Solid Rocket Motor (Steady)</h2>
+        </div>
+
+        <div class="tutorial-content">
+            <div class="row-split">
+                <div class="description">
+                    <h3>Problem Description</h3>
+                    <p>
+                        Simulation of the internal ballistics of a cylindrical grain solid rocket motor under steady-state conditions. 
+                        This case validates the solver's handling of mass injection from the burning surface and the subsequent flow development in the port area. 
+                        It serves as the baseline state before enabling dynamic mesh regression.
+                    </p>
+                </div>
+                <div class="media-container">
+                    <img src="images/schematic_srm_steady.png" alt="SRM Geometry Schematic" class="schematic-img">
+                    <p class="caption">Fig 3.1: Center-perforated grain geometry and boundary types.</p>
+                </div>
+            </div>
+
+            <div class="case-setup">
+                <h3>Case Setup & Boundary Conditions</h3>
+                <table class="bc-table">
+                    <thead>
+                        <tr>
+                            <th>Patch Name</th>
+                            <th>Condition Type</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Burning Surface</strong></td>
+                            <td>FlowRateInletVelocity</td>
+                            <td>Mass flux injection ($\dot{m} = \rho_p r_b$)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Head End</strong></td>
+                            <td>No-Slip Wall</td>
+                            <td>Adiabatic conditions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nozzle Exit</strong></td>
+                            <td>Supersonic Outlet</td>
+                            <td>ZeroGradient for supersonic flow</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="results-container">
+                <h3>Results</h3>
+                <p>Streamlines and pressure contours inside the combustion chamber showing flow acceleration towards the nozzle.</p>
+                <img src="images/result_srm_steady_streamlines.png" alt="SRM Streamlines Result" class="result-img">
+            </div>
+
+            <div class="github-link-container">
+                <a href="https://github.com/Ganeshkumar-V/Propellant-Regression-Framework/tree/main/tutorials/SRM/steady" target="_blank" class="btn-github">
+                    View Case Files on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="spacer" style="height: 20px;"></div>
+
+    <section id="regression-SRM" class="tutorial-section">
+        <div class="section-header">
+            <h2>4. Solid Rocket Motor with Propellant Regression</h2>
+        </div>
+
+        <div class="tutorial-content">
+            <div class="row-split">
+                <div class="description">
+                    <h3>Problem Description</h3>
+                    <p>
+                        This advanced case demonstrates the dynamic mesh capabilities of the framework. 
+                        It models the regression of the propellant grain over time using Saint-Robert's Law ($r = aP^n$). 
+                        The solver automatically updates the mesh topology at every time step to account for the increasing port volume and the receding burning surface.
+                    </p>
+                </div>
+                <div class="media-container">
+                    <img src="images/schematic_regression.png" alt="Regression Mesh Motion Schematic" class="schematic-img">
+                    <p class="caption">Fig 4.1: Moving mesh strategy and surface regression.</p>
+                </div>
+            </div>
+
+            <div class="case-setup">
+                <h3>Case Setup & Simulation Parameters</h3>
+                <table class="bc-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Setting / Model</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Mesh Motion Solver</strong></td>
+                            <td>Laplacian Displacement</td>
+                            <td>Diffusivity: <code>inverseDistance</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Regression Model</strong></td>
+                            <td>Saint-Robert's Law</td>
+                            <td>$r = aP^n$ (Pressure dependent)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Time Step Control</strong></td>
+                            <td>Adaptive</td>
+                            <td>Based on max Courant Number (Co < 0.5)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="results-container">
+                <h3>Results</h3>
+                <p>Time evolution of the grain surface showing the regression and the corresponding drop in chamber pressure over time.</p>
+                <img src="images/result_regression_time_evolution.gif" alt="Regression Animation" class="result-img">
+            </div>
+
+            <div class="github-link-container">
+                <a href="https://github.com/Ganeshkumar-V/Propellant-Regression-Framework/tree/main/tutorials/SRM/regression" target="_blank" class="btn-github">
+                    View Case Files on GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+    
+            </div> 
     </main>
 
     <!-- Footer -->

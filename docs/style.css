@@ -553,3 +553,189 @@ pre.foam-code {
     font-weight: 700;
     margin-bottom: 5px;
 }
+
+/* Layout */
+.tutorial-section {
+    padding: 40px 0;
+    border-bottom: 1px solid #eee;
+}
+.row-split {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.description { flex: 1; min-width: 300px; }
+.media-container { flex: 1; text-align: center; min-width: 300px; }
+.media-container img { max-width: 100%; border: 1px solid #ddd; border-radius: 4px; }
+.caption { font-size: 0.9em; color: #666; margin-top: 5px; }
+
+/* Tables */
+.bc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.95em;
+}
+.bc-table th, .bc-table td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+.bc-table th { background-color: #f4f4f4; font-weight: 600; }
+
+/* Buttons */
+.github-link-container { margin-top: 20px; text-align: center; }
+.btn-github {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #24292e; /* GitHub Black */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+.btn-github:hover { background-color: #444; }
+
+/* =========================================
+   SCOPED TUTORIAL STYLES
+   These only affect the tutorial content
+   ========================================= */
+
+/* 1. Main Wrapper Styling (instead of body) */
+.tutorial-page-wrapper {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f6f9; /* Light gray background for the content area */
+    padding: 40px 20px;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* 2. The Card/Section Box */
+.tutorial-page-wrapper .tutorial-section {
+    background: #ffffff;
+    padding: 40px;
+    margin: 0 auto 40px auto; /* Center the cards */
+    max-width: 1100px;        /* Limit width for readability */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Soft shadow */
+    border: 1px solid #e1e4e8;
+}
+
+/* 3. Headings (Scoped) */
+.tutorial-page-wrapper h2 {
+    color: #1a202c;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #3182ce; /* Blue underline */
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.tutorial-page-wrapper h3 {
+    color: #2d3748;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+/* 4. Layout: Split Description and Image */
+.tutorial-page-wrapper .row-split {
+    display: flex;
+    flex-wrap: wrap; /* Wraps on mobile */
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+.tutorial-page-wrapper .description {
+    flex: 3;
+    min-width: 300px;
+}
+
+.tutorial-page-wrapper .media-container {
+    flex: 2;
+    min-width: 300px;
+    text-align: center;
+    background: #fafafa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.tutorial-page-wrapper .schematic-img, 
+.tutorial-page-wrapper .result-img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.tutorial-page-wrapper .caption {
+    font-size: 0.85rem;
+    color: #718096;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+/* 5. Tables (Scoped) */
+.tutorial-page-wrapper .bc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.95rem;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+}
+
+.tutorial-page-wrapper .bc-table th {
+    background-color: #edf2f7;
+    color: #2d3748;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid #cbd5e0;
+}
+
+.tutorial-page-wrapper .bc-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #4a5568;
+}
+
+.tutorial-page-wrapper .bc-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* 6. Results Section */
+.tutorial-page-wrapper .results-container {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed #cbd5e0; /* Separator line */
+}
+
+/* 7. GitHub Button */
+.tutorial-page-wrapper .github-link-container {
+    margin-top: 35px;
+    text-align: center;
+}
+
+.tutorial-page-wrapper .btn-github {
+    display: inline-block;
+    background-color: #24292e;
+    color: #fff;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.tutorial-page-wrapper .btn-github:hover {
+    background-color: #444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
