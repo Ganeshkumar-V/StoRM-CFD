@@ -26,7 +26,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "totalTimeVaryingPressureFvPatchScalarField.H"
+#include "timeVaryingTotalPressureFvPatchScalarField.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
@@ -35,7 +35,7 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatchScalarField
+Foam::timeVaryingTotalPressureFvPatchScalarField::timeVaryingTotalPressureFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
@@ -52,7 +52,7 @@ Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatc
 {}
 
 
-Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatchScalarField
+Foam::timeVaryingTotalPressureFvPatchScalarField::timeVaryingTotalPressureFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -82,9 +82,9 @@ Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatc
 }
 
 
-Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatchScalarField
+Foam::timeVaryingTotalPressureFvPatchScalarField::timeVaryingTotalPressureFvPatchScalarField
 (
-    const totalTimeVaryingPressureFvPatchScalarField& ptf,
+    const timeVaryingTotalPressureFvPatchScalarField& ptf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -101,9 +101,9 @@ Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatc
 {}
 
 
-Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatchScalarField
+Foam::timeVaryingTotalPressureFvPatchScalarField::timeVaryingTotalPressureFvPatchScalarField
 (
-    const totalTimeVaryingPressureFvPatchScalarField& tppsf
+    const timeVaryingTotalPressureFvPatchScalarField& tppsf
 )
 :
     fixedValueFvPatchScalarField(tppsf),
@@ -117,9 +117,9 @@ Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatc
 {}
 
 
-Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatchScalarField
+Foam::timeVaryingTotalPressureFvPatchScalarField::timeVaryingTotalPressureFvPatchScalarField
 (
-    const totalTimeVaryingPressureFvPatchScalarField& tppsf,
+    const timeVaryingTotalPressureFvPatchScalarField& tppsf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
@@ -136,7 +136,7 @@ Foam::totalTimeVaryingPressureFvPatchScalarField::totalTimeVaryingPressureFvPatc
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::totalTimeVaryingPressureFvPatchScalarField::autoMap
+void Foam::timeVaryingTotalPressureFvPatchScalarField::autoMap
 (
     const fvPatchFieldMapper& m
 )
@@ -146,7 +146,7 @@ void Foam::totalTimeVaryingPressureFvPatchScalarField::autoMap
 }
 
 
-void Foam::totalTimeVaryingPressureFvPatchScalarField::rmap
+void Foam::timeVaryingTotalPressureFvPatchScalarField::rmap
 (
     const fvPatchScalarField& ptf,
     const labelList& addr
@@ -154,14 +154,14 @@ void Foam::totalTimeVaryingPressureFvPatchScalarField::rmap
 {
     fixedValueFvPatchScalarField::rmap(ptf, addr);
 
-    const totalTimeVaryingPressureFvPatchScalarField& tiptf =
-        refCast<const totalTimeVaryingPressureFvPatchScalarField>(ptf);
+    const timeVaryingTotalPressureFvPatchScalarField& tiptf =
+        refCast<const timeVaryingTotalPressureFvPatchScalarField>(ptf);
 
     p0_.rmap(tiptf.p0_, addr);
 }
 
 
-void Foam::totalTimeVaryingPressureFvPatchScalarField::updateCoeffs
+void Foam::timeVaryingTotalPressureFvPatchScalarField::updateCoeffs
 (
     const scalarField& p0p,
     const vectorField& Up
@@ -171,6 +171,8 @@ void Foam::totalTimeVaryingPressureFvPatchScalarField::updateCoeffs
     {
         return;
     }
+
+    const scalar t = db().time().timeOutputValue();
 
     const fvsPatchField<scalar>& phip =
         patch().lookupPatchField<surfaceScalarField, scalar>(phiName_);
@@ -199,7 +201,7 @@ void Foam::totalTimeVaryingPressureFvPatchScalarField::updateCoeffs
                 // Info << "Additional Pressure: " << dpdt_*this->db().time().value() << endl;
                 operator==
                 (
-                  (p0p + dpdt_*this->db().time().value())
+                  (p0p + dpdt_*t)
                     // (p0p)
                    /pow
                     (
@@ -239,7 +241,7 @@ void Foam::totalTimeVaryingPressureFvPatchScalarField::updateCoeffs
 }
 
 
-void Foam::totalTimeVaryingPressureFvPatchScalarField::updateCoeffs()
+void Foam::timeVaryingTotalPressureFvPatchScalarField::updateCoeffs()
 {
     updateCoeffs
     (
@@ -249,7 +251,7 @@ void Foam::totalTimeVaryingPressureFvPatchScalarField::updateCoeffs()
 }
 
 
-void Foam::totalTimeVaryingPressureFvPatchScalarField::write(Ostream& os) const
+void Foam::timeVaryingTotalPressureFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchScalarField::write(os);
     os.writeEntryIfDifferent<word>("U", "U", UName_);
@@ -270,7 +272,7 @@ namespace Foam
     makePatchTypeField
     (
         fvPatchScalarField,
-        totalTimeVaryingPressureFvPatchScalarField
+        timeVaryingTotalPressureFvPatchScalarField
     );
 }
 

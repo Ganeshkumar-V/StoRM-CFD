@@ -24,7 +24,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::totalTimeVaryingPressureFvPatchScalarField
+    Foam::timeVaryingTotalPressureFvPatchScalarField
 
 Group
     grpInletBoundaryConditions grpOutletBoundaryConditions
@@ -107,7 +107,7 @@ Usage
     \verbatim
     <patchName>
     {
-        type            totalTimeVaryingPressure;
+        type            timeVaryingTotalPressure;
         p0              uniform 1e5;
     }
     \endverbatim
@@ -116,12 +116,12 @@ See also
     Foam::fixedValueFvPatchField
 
 SourceFiles
-    totalTimeVaryingPressureFvPatchScalarField.C
+    timeVaryingTotalPressureFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef totalTimeVaryingPressureFvPatchScalarField_H
-#define totalTimeVaryingPressureFvPatchScalarField_H
+#ifndef timeVaryingTotalPressureFvPatchScalarField_H
+#define timeVaryingTotalPressureFvPatchScalarField_H
 
 #include "fixedValueFvPatchFields.H"
 
@@ -131,10 +131,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-              Class totalTimeVaryingPressureFvPatchScalarField Declaration
+              Class timeVaryingTotalPressureFvPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class totalTimeVaryingPressureFvPatchScalarField
+class timeVaryingTotalPressureFvPatchScalarField
 :
     public fixedValueFvPatchScalarField
 {
@@ -166,40 +166,40 @@ class totalTimeVaryingPressureFvPatchScalarField
 public:
 
     //- Runtime type information
-    TypeName("totalTimeVaryingPressure");
+    TypeName("timeVaryingTotalPressure");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        totalTimeVaryingPressureFvPatchScalarField
+        timeVaryingTotalPressureFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        totalTimeVaryingPressureFvPatchScalarField
+        timeVaryingTotalPressureFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given totalTimeVaryingPressureFvPatchScalarField
+        //- Construct by mapping given timeVaryingTotalPressureFvPatchScalarField
         //  onto a new patch
-        totalTimeVaryingPressureFvPatchScalarField
+        timeVaryingTotalPressureFvPatchScalarField
         (
-            const totalTimeVaryingPressureFvPatchScalarField&,
+            const timeVaryingTotalPressureFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-        totalTimeVaryingPressureFvPatchScalarField
+        timeVaryingTotalPressureFvPatchScalarField
         (
-            const totalTimeVaryingPressureFvPatchScalarField&
+            const timeVaryingTotalPressureFvPatchScalarField&
         );
 
         //- Construct and return a clone
@@ -207,14 +207,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new totalTimeVaryingPressureFvPatchScalarField(*this)
+                new timeVaryingTotalPressureFvPatchScalarField(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        totalTimeVaryingPressureFvPatchScalarField
+        timeVaryingTotalPressureFvPatchScalarField
         (
-            const totalTimeVaryingPressureFvPatchScalarField&,
+            const timeVaryingTotalPressureFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -226,7 +226,7 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new totalTimeVaryingPressureFvPatchScalarField(*this, iF)
+                new timeVaryingTotalPressureFvPatchScalarField(*this, iF)
             );
         }
 

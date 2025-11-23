@@ -60,22 +60,6 @@ InterphaseHeatTransferPhaseSystem
           dimensionedScalar(dimTemperature, 0.0)
       )
     ),
-    Nu_
-    (
-      volScalarField
-      (
-          IOobject
-          (
-              "Nu",
-              this->mesh().time().timeName(),
-              this->mesh(),
-              IOobject::NO_READ,
-              IOobject::AUTO_WRITE
-          ),
-          this->mesh(),
-          dimensionedScalar(dimless, 0.0)
-      )
-    ),
     K_
     (
       volScalarField
@@ -115,7 +99,6 @@ InterphaseHeatTransferPhaseSystem
       const phaseModel& phase2 = pair.continuous();
 
       Tslip_ = phase1.thermo().T() - phase2.thermo().T();
-      Nu_ = sharpInterfaceHeatTransferModelIter()->Nu();
       Info << "Dimensions K_: " << K_.dimensions() << endl;
       Info << "Dimensions K(): " << sharpInterfaceHeatTransferModelIter()->K()().dimensions() << endl;
       K_ = sharpInterfaceHeatTransferModelIter()->K();
@@ -221,7 +204,6 @@ correctEnergyTransport()
     )
     {
         K_ = sharpInterfaceHeatTransferModelIter()->K();
-        Nu_ = sharpInterfaceHeatTransferModelIter()->Nu();
     }
 
     BasePhaseSystem::correctEnergyTransport();
@@ -253,7 +235,6 @@ store()
     const phaseModel& phase2 = pair.continuous();
 
     Tslip_ = phase1.thermo().T() - phase2.thermo().T();
-    Nu_ = sharpInterfaceHeatTransferModelIter()->Nu();
     K_ = sharpInterfaceHeatTransferModelIter()->K();
   }
 }
