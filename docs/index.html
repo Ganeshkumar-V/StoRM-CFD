@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Updated Page Title -->
-    <title>RocIBCFD - Rocket Propulsion Software</title>
+    <title>StoRM-CFD - Rocket Propulsion Software</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
@@ -15,7 +15,7 @@
     <header class="shadow-md sticky top-0 z-40">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <!-- Project Title -->
-            <a href="index.html" class="text-2xl font-bold text-white">RocIBCFD</a>
+            <a href="index.html" class="text-2xl font-bold text-white">StoRM-CFD</a>
 
             <!-- Mobile Menu Button -->
             <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
@@ -35,9 +35,9 @@
                     </button>
                     <!-- Dropdown Menu -->
                     <div class="absolute -left-4 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block">
-                        <a href="#about" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">About RocIBCFD</a>
+                        <a href="#about" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">About StoRM-CFD</a>
                         <a href="#install" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Quick Installation</a>
-                        <a href="#publications" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Publications</a>
+                        <a href="#citation" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Citation</a>
                         <a href="#contact" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Contact</a>
                     </div>
                 </div>
@@ -86,9 +86,9 @@
         <!-- Mobile Menu (Hidden by default) -->
         <div id="mobile-menu" class="hidden md:hidden px-2 pt-2 pb-3 space-y-1">
             <a href="index.html" class="block px-3 py-2 rounded-md text-base font-bold text-white bg-blue-600" aria-current="page">Home</a>
-            <a href="#about" class="block px-3 py-2 rounded-md text-base font-bold text-white hover:bg-gray-200">About RocIBCFD</a>
+            <a href="#about" class="block px-3 py-2 rounded-md text-base font-bold text-white hover:bg-gray-200">About StoRM-CFD</a>
             <a href="#install" class="block px-3 py-2 rounded-md text-base font-bold text-white hover:bg-gray-200">Quick Installation</a>
-            <a href="#publications" class="block px-4 py-2 text-sm text-white hover:bg-gray-100">Publications</a>
+            <a href="#citation" class="block px-4 py-2 text-sm text-white hover:bg-gray-100">Citation</a>
             <a href="#contact" class="block px-3 py-2 rounded-md text-base font-bold text-white hover:bg-gray-200">Contact</a>
             
             <hr class="border-gray-300">
@@ -105,8 +105,8 @@
         <!-- Hero Section -->
         <section class="hero py-24 text-center">
             <div class="container mx-auto px-6">
-                <h1>RocIBCFD</h1>
-                <p>An OpenFOAM-based software tool for Internal Ballistic simulations of solid rocket motors.</p>
+                <h1>StoRM-CFD</h1>
+                <p>An OpenFOAM-based software tool for internal ballistic simulations of solid rocket motors.</p>
                 <button id="quick-start-button">Get Started</button>
             </div>
         </section>
@@ -131,94 +131,170 @@
                     </div>
 
                     <h2 class="text-3xl font-bold text-gray-900 mb-6">
-                        Advanced Multiphase Flow Simulation for Rocket Propulsion
+                        Simulation toolkit for Rocket Motor - CFD
                     </h2>
                     
                     <p class="text-lg text-gray-700 text-justify">
-                        <strong class="text-gray-900">RocIBCFD</strong> is a comprehensive, 
-                        OpenFOAM-based framework for simulating high-speed, gas-particle 
-                        multiphase flows, specifically tailored for solid rocket motor (SRM) applications.
-                    </p>
+                        <strong class="text-gray-900">StoRM-CFD</strong> is a comprehensive, OpenFOAM-based framework 
+                        for simulating high-speed, gas-particle multiphase flows, that predicts all the 
+                        flow fields throughout the entire firing duration of solid rocket motors.
+                      </p>
                       
                     <p class="mt-4 text-lg text-gray-700 leading-relaxed text-justify">
                         It's a powerful tool for researchers and engineers to study complex 
-                        internal ballistics, model propellant regression, and accurately 
+                        internal ballistics, capture propellant regression, and accurately 
                         evaluate key performance metrics like thrust, C*, and Isp.
                     </p>
 
-                    <h3 class="text-2xl font-bold text-gray-900 text-left mt-12 mb-6">
-                        🚀 Core Simulation Capabilities
-                      </h3>
+                    <div class="max-w-4xl">
+  
+                        <h3 class="flex items-center text-2xl font-bold text-gray-900 text-left mt-16 mb-8">
+                          <span class="bg-indigo-100 text-indigo-600 p-2 rounded-lg mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                          </span>
+                          Core Simulation Capabilities
+                        </h3>
+                      
+                        <p class="text-lg text-gray-700 leading-relaxed text-left mb-10">
+                          The framework's core is a robust <strong class="text-gray-900">Euler-Euler multiphase flow solver</strong> 
+                          that solves separate mass, momentum, and energy equations for both the 
+                          gas and particle phases. This approach allows for the high-fidelity 
+                          resolution of complex physics inside the rocket motor, including:
+                        </p>
+                      
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      
+                          <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md hover:border-blue-200 transition-all duration-300">
+                            <div class="flex items-center mb-3">
+                              <div class="p-2 bg-blue-100 text-blue-600 rounded-lg mr-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                              </div>
+                              <strong class="text-lg text-gray-900">High Speed Flows</strong>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                              Capable of simulating two-phase (gas-particle) and single-phase 
+                              flows through convergent-divergent (CD) nozzles (for flows with Mach number &lt; 3.5).
+                            </p>
+                          </div>
+                      
+                          <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md hover:border-red-200 transition-all duration-300">
+                            <div class="flex items-center mb-3">
+                              <div class="p-2 bg-red-100 text-red-600 rounded-lg mr-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
+                              </div>
+                              <strong class="text-lg text-gray-900">Propellant Regression</strong>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                              Accurately models the regressing propellant surface for common 
+                              grain geometries such as center-perforated and end-burning configurations 
+                              (future releases will handle arbitrary grain geometries).
+                            </p>
+                          </div>
+                      
+                          <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md hover:border-green-200 transition-all duration-300">
+                            <div class="flex items-center mb-3">
+                              <div class="p-2 bg-green-100 text-green-600 rounded-lg mr-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                              </div>
+                              <strong class="text-lg text-gray-900">Interphase Interactions</strong>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                              Momentum and energy exchange (drag and heat transfer) between 
+                              the gas and particle phases for all flow regimes that includes inertial, compressible 
+                              and rarefield flow regimes.
+                            </p>
+                          </div>
+                      
+                          <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md hover:border-purple-200 transition-all duration-300">
+                            <div class="flex items-center mb-3">
+                              <div class="p-2 bg-purple-100 text-purple-600 rounded-lg mr-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                              </div>
+                              <strong class="text-lg text-gray-900">Interparticle Interactions</strong>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                              Models collisions and interactions between particles.
+                            </p>
+                          </div>
+                      
+                        </div>
+                      </div>
                     
-                      <p class="text-lg text-gray-700 leading-relaxed text-left mb-6">
-                        The framework's core is a robust <strong class="text-gray-900">Euler-Euler multiphase flow solver</strong> 
-                        that solves separate mass, momentum, and energy equations for both the 
-                        gas and particle phases. This approach allows for the high-fidelity 
-                        resolution of complex physics inside the rocket motor, including:
-                      </p>
-                    
-                      <ul class="list-disc list-outside pl-5 space-y-4 text-lg text-left text-gray-700">
-                        
-                        <li>
-                            <strong class="text-gray-900">High Speed Flows:</strong> 
-                            Capable of simulating two-phase (gas-particle) and single-phase 
-                            flows through convergent-divergent (CD) nozzles (for flows with Mach number < 3.5).
+                      <div class="max-w-4xl">
+                        <h3 class="flex items-center text-2xl font-bold text-gray-900 text-left mt-12 mb-8">
+                          <span class="bg-blue-100 text-blue-600 p-2 rounded-lg mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                          </span>
+                          A Complete Toolkit for Propulsion Analysis
+                        </h3>
+                      
+                        <p class="text-lg text-gray-700 leading-relaxed text-left mb-8">
+                          To facilitate propulsion research, this suite includes a comprehensive set of integrated tools designed for direct propulsion analysis:
+                        </p>
+                      
+                        <ul class="space-y-10 text-lg text-left text-gray-700">
+                      
+                          <li class="relative pl-4 border-l-2 border-transparent hover:border-gray-200 transition-colors duration-300">
+                            <a href="program.html#boundary-condition" class="group flex items-center mb-2 w-fit">
+                              <strong class="text-xl text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+                                Specialized Boundary Conditions
+                              </strong>
+                              <svg class="w-5 h-5 ml-2 text-blue-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                            
+                            <p class="leading-relaxed">
+                              Includes multiphase inlet conditions defined by mass fraction for CD nozzle flows, and
+                              dynamic burning-rate mass flow inlets for propellant surfaces determined by the local pressure field—enabling
+                              steady solid rocket motor simulations.
+                            </p>
                           </li>
-
-                        <li>
-                          <strong class="text-gray-900">Propellant Regression:</strong> 
-                          Accurately models the regressing propellant surface for common 
-                          grain geometries such as center-perforated and end-burning configurations 
-                          (future releases will handle arbitrary grain geometries).
-                        </li>
-                    
-                        <li>
-                            <strong class="text-gray-800">Interphase Interactions:</strong> 
-                            Momentum and energy exchange (drag and heat transfer) between 
-                            the gas and particle phases for all flow regimes that includes inertial, compressible 
-                            and rarefield flow regimes.
+                      
+                          <li class="relative pl-4 border-l-2 border-transparent hover:border-gray-200 transition-colors duration-300">
+                            <a href="program.html#utilities" class="group flex items-center mb-2 w-fit">
+                              <strong class="text-xl text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+                                Performance Utilities
+                              </strong>
+                              <svg class="w-5 h-5 ml-2 text-blue-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                      
+                            <p class="mb-3">Dedicated tools designed to:</p>
+                            
+                            <ul class="space-y-3 pl-4 border-l-2 border-blue-100 ml-1">
+                              <li class="flex items-start">
+                                <span class="text-blue-500 mr-2 mt-1">›</span>
+                                <span>Initialize propellant grain geometry.</span>
+                              </li>
+                              <li class="flex items-start">
+                                <span class="text-blue-500 mr-2 mt-1">›</span>
+                                <span>Post-process results for key performance parameters (thrust, mass flow rate).</span>
+                              </li>
+                              <li class="flex items-start">
+                                <span class="text-blue-500 mr-2 mt-1">›</span>
+                                <span>Map solution fields based on volume for grid convergence studies and <i>a posteriori</i> error estimation.</span>
+                              </li>
+                            </ul>
                           </li>
-                          <li>
-                            <strong class="text-gray-800">Interparticle Interactions:</strong> 
-                            Models collisions and interactions between particles. 
+                      
+                          <li class="relative pl-4 border-l-2 border-transparent hover:border-gray-200 transition-colors duration-300">
+                            <a href="tutorials.html" class="group flex items-center mb-2 w-fit">
+                              <strong class="text-xl text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+                                Tutorial and Validation Cases
+                              </strong>
+                              <svg class="w-5 h-5 ml-2 text-blue-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            </a>
+                      
+                            <p class="leading-relaxed">
+                              A comprehensive set of tutorial and validation cases to demonstrate solver capabilities and accelerate the learning curve for new users.
+                            </p>
                           </li>
-                    
-                        
-                      </ul>
-                    
-                      <h3 class="text-2xl font-bold text-gray-900 text-left mt-12 mb-6">
-                        🔧 A Complete Toolkit for Propulsion Analysis
-                      </h3>
-                    
-                      <p class="text-lg text-gray-700 leading-relaxed text-left mb-6">
-                        To accelerate your research, this suite is more than just a solver. 
-                        It also includes:
-                      </p>
-                    
-                      <ul class="list-disc list-outside pl-5 space-y-4 text-lg text-left text-gray-700">
-                        
-                        <li>
-                          <strong class="text-gray-900">Specialized Boundary Conditions:</strong> 
-                          A library of boundary conditions specifically developed for 
-                          high-speed propulsion simulations.
-                        </li>
-                    
-                        <li>
-                          <strong class="text-gray-900">Performance Utilities:</strong> 
-                          Handy tools to help set up initial conditions and post-process 
-                          results to extract key performance parameters.
-                        </li>
-                    
-                        <li>
-                            <strong class="text-gray-900">Tutorial and Validation Cases:</strong> 
-                            A set of 
-                            <a href="tutorials.html" 
-                               class="text-blue-600 underline underline-dashed hover:text-blue-800 hover:underline-solid">
-                              tutorial and validation cases&nbsp;↗
-                            </a> 
-                            to demonstrate the software's capabilities and help new users get started quickly.
-                          </li>
-                      </ul>
+                      
+                        </ul>
+                      </div>
                 </div>
             </div>
         </section>
@@ -319,19 +395,15 @@
             </div>
         </section>
 
-        <!-- Section 3: Publications & Citations  -->
-        <section id="publications" class="py-20 bg-white">
+        <!-- Section 3: Citation  -->
+        <section id="citation" class="py-20 bg-white">
             <div class="container mx-auto px-6">
                 <div class="max-w-3xl mx-auto text-left">
                     <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
-                        Publications & Citation
+                        Citation
                     </h2>
-                    
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">
-                        How to Cite
-                    </h3>
                     <p class="text-lg text-gray-700 leading-relaxed mb-6">
-                        If you use this software in published work, please cite the associated paper:
+                        If you use this software in your research, we kindly request that you cite the following publication:
                     </p>
                     
                     <div class="bg-gray-100 p-6 rounded-lg text-gray-800 text-base shadow-inner border border-gray-200">
@@ -346,7 +418,7 @@
                         </a>
                     </div>
         
-                    <h3 class="text-2xl font-semibold text-gray-800 mt-12 mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800 mt-12 mb-4">
                         Suggested BibTeX
                     </h3>
                     <div class="relative bg-gray-900 text-gray-300 font-mono text-sm rounded-lg p-4 overflow-x-auto">
@@ -368,17 +440,37 @@
                         </button>
                     </div>
                     
-                    <h3 class="text-2xl font-semibold text-gray-800 mt-12 mb-4">
-                        Authors & Acknowledgements
-                    </h3>
-                    <ul class="list-disc list-outside pl-5 text-lg text-gray-700 space-y-3">
-                        <li>
-                            <strong>Original author:</strong> Ganeshkumar V
-                        </li>
-                        <li>
-                            <strong>Developed under the supervision of:</strong> Prof. Dilip Srinivas Sundaram
-                        </li>
-                    </ul>
+                    <div class="mt-20 mb-12 max-w-4xl mx-auto">
+                        <div class="bg-gray-900 rounded-2xl shadow-2xl overflow-hidden p-10 md:p-12 text-center relative">
+                          
+                          <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
+                            <div class="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-blue-500 blur-3xl"></div>
+                            <div class="absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-purple-500 blur-3xl"></div>
+                          </div>
+                      
+                          <div class="relative z-10">
+                            <h3 class="text-gray-400 font-medium tracking-widest uppercase text-sm mb-4">Project Architecture & Development</h3>
+                            
+                            <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-4 tracking-tight">
+                              Ganeshkumar V
+                            </h1>
+                            <p class="text-blue-400 text-xl font-medium mb-10">Original Author & Lead Developer</p>
+                      
+                            <div class="w-24 h-1 bg-gray-700 mx-auto rounded-full mb-10"></div>
+                      
+                            <div class="inline-flex items-center bg-gray-800 bg-opacity-50 rounded-xl p-4 border border-gray-700">
+                              <div class="mr-4 p-3 bg-gray-700 rounded-full text-gray-300">
+                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"></path><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                              </div>
+                              <div class="text-left">
+                                <p class="text-gray-400 text-xs uppercase font-bold">Scientific Supervision</p>
+                                <p class="text-white text-lg font-semibold">Prof. Dilip Srinivas Sundaram</p>
+                              </div>
+                            </div>
+                          </div>
+                      
+                        </div>
+                      </div>
         
                 </div>
             </div>
@@ -392,7 +484,7 @@
                         Contact & Contribute
                     </h2>
                     <p class="text-lg text-gray-700 leading-relaxed mb-10">
-                        RocIBCFD is an open-source project. We welcome bug reports, 
+                        StoRM-CFD is an open-source project. We welcome bug reports, 
                         feature requests, and contributions from the community.
                     </p>
                     
