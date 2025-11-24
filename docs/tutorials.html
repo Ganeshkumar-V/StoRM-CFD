@@ -263,7 +263,7 @@
                     <p>
                         Simulation of the internal ballistics of a cylindrical grain solid rocket motor under steady-state conditions. 
                         This case validates the solver's handling of mass injection from the burning surface and the subsequent flow development in the port area. 
-                        It serves as the baseline state before enabling dynamic mesh regression.
+                        
                     </p>
                 </div>
                 <div class="media-container">
@@ -328,9 +328,9 @@
                 <div class="description">
                     <h3>Problem Description</h3>
                     <p>
-                        This advanced case demonstrates the dynamic mesh capabilities of the framework. 
-                        It models the regression of the propellant grain over time using Saint-Robert's Law ($r = aP^n$). 
-                        The solver automatically updates the mesh topology at every time step to account for the increasing port volume and the receding burning surface.
+                        This advanced case demonstrates the propellant grain regression over time using Saint-Robert's Law ($r = aP^n$). 
+                        The solver automatically updates the propellant volume fraction at every time step to account for the 
+                        increasing port volume and the receding burning surface.
                     </p>
                 </div>
                 <div class="media-container">
