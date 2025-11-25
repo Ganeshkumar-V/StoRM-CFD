@@ -1,4 +1,4 @@
-# Propellant Regression Framework
+# StoRM-CFD
 
 ![Simulation GIF](docs/media.gif)
 
@@ -138,5 +138,6 @@ doi = {10.2514/1.B39541}
 ```
 
 ## 📬 Contact
+
 
 If you encounter problems, please open an issue on the repository.
