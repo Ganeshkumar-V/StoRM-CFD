@@ -44,22 +44,6 @@ InterphaseHeatTransferPhaseSystem
 )
 :
     BasePhaseSystem(mesh),
-    Tslip_
-    (
-      volScalarField
-      (
-          IOobject
-          (
-              "Tslip",
-              this->mesh().time().timeName(),
-              this->mesh(),
-              IOobject::NO_READ,
-              IOobject::AUTO_WRITE
-          ),
-          this->mesh(),
-          dimensionedScalar(dimTemperature, 0.0)
-      )
-    ),
     K_
     (
       volScalarField
@@ -70,7 +54,7 @@ InterphaseHeatTransferPhaseSystem
               this->mesh().time().timeName(),
               this->mesh(),
               IOobject::NO_READ,
-              IOobject::AUTO_WRITE
+              IOobject::NO_WRITE
           ),
           this->mesh(),
           dimensionedScalar(dimPower/dimVolume/dimTemperature, 0.0)
@@ -98,9 +82,6 @@ InterphaseHeatTransferPhaseSystem
       const phaseModel& phase1 = pair.dispersed();
       const phaseModel& phase2 = pair.continuous();
 
-      Tslip_ = phase1.thermo().T() - phase2.thermo().T();
-      Info << "Dimensions K_: " << K_.dimensions() << endl;
-      Info << "Dimensions K(): " << sharpInterfaceHeatTransferModelIter()->K()().dimensions() << endl;
       K_ = sharpInterfaceHeatTransferModelIter()->K();
     }
 }
@@ -234,7 +215,6 @@ store()
     const phaseModel& phase1 = pair.dispersed();
     const phaseModel& phase2 = pair.continuous();
 
-    Tslip_ = phase1.thermo().T() - phase2.thermo().T();
     K_ = sharpInterfaceHeatTransferModelIter()->K();
   }
 }

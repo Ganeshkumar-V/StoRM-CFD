@@ -82,7 +82,6 @@ protected:
             sharpInterfaceHeatTransferModelTable sharpInterfaceHeatTransferModels_;
 
         // data
-        volScalarField Tslip_;
         volScalarField K_;
 
 public:
