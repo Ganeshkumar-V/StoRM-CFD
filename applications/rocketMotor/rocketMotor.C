@@ -101,6 +101,13 @@ int main(int argc, char *argv[])
   vectorField setVelocity(0, vector(0, 0, 0));
   label propellantIndex = fluid.get<label>("propellantIndex");
   bool limitTemperature = fluid.getOrDefault<bool>("limitTemperature", false);
+  scalar minTemp(300);
+  scalar maxTemp(3000);
+  if (limitTemperature)
+  {
+    minTemp = fluid.get<scalar>("minTemp");
+    maxTemp = fluid.get<scalar>("maxTemp");
+  }
 
   while (runTime.run())
   {
