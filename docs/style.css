@@ -608,56 +608,141 @@ pre.foam-code {
 }
 
 /* =========================================
-   SCOPED TUTORIAL STYLES
-   These only affect the tutorial content
+   UPDATED ACCORDION STYLES (Rich Header)
    ========================================= */
 
-/* 1. Main Wrapper Styling (instead of body) */
+   /* =========================================
+   COMPLETE TUTORIAL ACCORDION STYLES
+   (Paste this into your main CSS file)
+   ========================================= */
+
+/* 1. Main Page Wrapper */
 .tutorial-page-wrapper {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f4f6f9; /* Light gray background for the content area */
+    background-color: #f9f9f9;
     padding: 40px 20px;
     line-height: 1.6;
     color: #333;
+    max-width: 1100px;
+    margin: 0 auto; /* Centers the content */
 }
 
-/* 2. The Card/Section Box */
-.tutorial-page-wrapper .tutorial-section {
-    background: #ffffff;
-    padding: 40px;
-    margin: 0 auto 40px auto; /* Center the cards */
-    max-width: 1100px;        /* Limit width for readability */
+/* 2. The "Rich" Accordion Button */
+.tutorial-page-wrapper .accordion {
+    background-color: #ffffff;
+    color: #2c3e50;
+    cursor: pointer;
+    padding: 15px 25px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    transition: all 0.3s ease;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Soft shadow */
+    margin-bottom: 12px; /* Space between items */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     border: 1px solid #e1e4e8;
+    
+    /* Flexbox Layout for Title/Desc + Image */
+    display: flex;
+    align-items: center; 
+    justify-content: space-between; 
+    gap: 20px;
 }
 
-/* 3. Headings (Scoped) */
-.tutorial-page-wrapper h2 {
-    color: #1a202c;
-    font-size: 1.8rem;
+/* Hover and Active States */
+.tutorial-page-wrapper .active, 
+.tutorial-page-wrapper .accordion:hover {
+    background-color: #f8fbff; /* Very light blue */
+    border-color: #bee3f8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* Text Group inside Button */
+.tutorial-page-wrapper .acc-text-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.tutorial-page-wrapper .acc-title {
+    font-size: 1.2rem;
     font-weight: 700;
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #3182ce; /* Blue underline */
-    display: inline-block;
-    padding-bottom: 5px;
+    color: #2d3748;
+    margin-bottom: 6px;
+}
+
+.tutorial-page-wrapper .acc-desc {
+    font-size: 0.95rem;
+    color: #718096;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* Thumbnail Image inside Button */
+.tutorial-page-wrapper .acc-thumb {
+    /* Adjust these values to make the image larger */
+    height: 160px;       /* Increased height */
+    width: 220px;        /* Increased width */
+    
+    object-fit: cover; /* Keeps image from distorting */
+    border-radius: 6px;
+    border: 1px solid #edf2f7;
+    background-color: #eee;
+}
+
+/* Plus/Minus Icon */
+.tutorial-page-wrapper .accordion:after {
+    content: '\002B'; /* Plus sign */
+    font-size: 1.8rem;
+    color: #a0aec0;
+    font-weight: 400;
+    margin-left: 15px;
+    transition: transform 0.3s ease;
+}
+
+.tutorial-page-wrapper .active:after {
+    content: "\2212"; /* Minus sign */
+    color: #3182ce;
+}
+
+/* 3. The Sliding Panel (Hidden Content) */
+.tutorial-page-wrapper .panel {
+    padding: 0 30px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    border-radius: 0 0 8px 8px;
+    margin-top: -10px; /* Pull up to attach to button */
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+    border-left: 1px solid #e1e4e8;
+    border-right: 1px solid #e1e4e8;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+/* 4. Internal Content Styling */
+.tutorial-page-wrapper .tutorial-content {
+    padding: 30px 10px;
 }
 
 .tutorial-page-wrapper h3 {
     color: #2d3748;
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-top: 25px;
-    margin-bottom: 10px;
+    margin-top: 10px;
+    border-bottom: 2px solid #edf2f7;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
 }
 
-/* 4. Layout: Split Description and Image */
+/* Split Layout (Description Left, Schematic Right) */
 .tutorial-page-wrapper .row-split {
     display: flex;
-    flex-wrap: wrap; /* Wraps on mobile */
+    flex-wrap: wrap;
     gap: 40px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 .tutorial-page-wrapper .description {
@@ -667,19 +752,21 @@ pre.foam-code {
 
 .tutorial-page-wrapper .media-container {
     flex: 2;
-    min-width: 300px;
+    min-width: 280px;
     text-align: center;
     background: #fafafa;
     padding: 15px;
     border-radius: 8px;
+    border: 1px solid #edf2f7;
 }
 
-.tutorial-page-wrapper .schematic-img, 
+.tutorial-page-wrapper .schematic-img,
 .tutorial-page-wrapper .result-img {
     max-width: 100%;
     height: auto;
     display: block;
     margin: 0 auto;
+    border-radius: 4px;
 }
 
 .tutorial-page-wrapper .caption {
@@ -689,62 +776,60 @@ pre.foam-code {
     font-style: italic;
 }
 
-/* 5. Tables (Scoped) */
+/* Tables */
 .tutorial-page-wrapper .bc-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 15px 0;
+    margin-bottom: 30px;
     font-size: 0.95rem;
-    background: #fff;
     border: 1px solid #e2e8f0;
 }
 
 .tutorial-page-wrapper .bc-table th {
     background-color: #edf2f7;
     color: #2d3748;
-    font-weight: 600;
     text-align: left;
-    padding: 12px 16px;
-    border-bottom: 2px solid #cbd5e0;
+    padding: 12px 15px;
+    font-weight: 600;
 }
 
 .tutorial-page-wrapper .bc-table td {
-    padding: 12px 16px;
+    padding: 12px 15px;
     border-bottom: 1px solid #e2e8f0;
-    color: #4a5568;
 }
 
-.tutorial-page-wrapper .bc-table tr:last-child td {
-    border-bottom: none;
-}
-
-/* 6. Results Section */
+/* Results Section */
 .tutorial-page-wrapper .results-container {
     margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px dashed #cbd5e0; /* Separator line */
+    text-align: center;
 }
 
-/* 7. GitHub Button */
+.tutorial-page-wrapper .results-container p {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+/* GitHub Button */
 .tutorial-page-wrapper .github-link-container {
-    margin-top: 35px;
+    margin-top: 40px;
     text-align: center;
+    padding-top: 20px;
+    border-top: 1px dashed #cbd5e0;
 }
 
 .tutorial-page-wrapper .btn-github {
     display: inline-block;
     background-color: #24292e;
     color: #fff;
-    font-weight: 600;
-    padding: 12px 24px;
+    padding: 12px 30px;
     border-radius: 6px;
     text-decoration: none;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    font-weight: 600;
+    transition: transform 0.2s, background-color 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .tutorial-page-wrapper .btn-github:hover {
     background-color: #444;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
